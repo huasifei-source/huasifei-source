@@ -66,6 +66,18 @@ wifi_config() {
 	[ ! -f /etc/config/wireless ] && touch /etc/config/wireless
 	ucode /lib/wifi/mac80211.uc | uci -q batch
 
+	ssid_2g=`uci get wireless.default_radio0.ssid`                                      
+	ssid_5g=`uci get wireless.default_radio1.ssid`             
+																	
+	mac_addr=`getmac | awk -F: '{gsub(/:/,""); print substr($0, length($0)-5)}'`
+																					
+	if [ "$ssid_2g" = "null" -a "$ssid_5g" = "null" ];then                              
+		uci set wireless.default_radio0.ssid="WIFI-2G-${mac_addr}"                      
+		uci set wireless.default_radio1.ssid="WIFI-5G-${mac_addr}"                      
+			echo "wifi ssid is null,change it default!" >>/dev/kmsg                                     
+		uci commit                                                              
+	fi  
+
 	for driver in $DRIVERS; do (
 		if eval "type detect_$driver" 2>/dev/null >/dev/null; then
 			eval "detect_$driver" || echo "$driver: Detect failed" >&2
