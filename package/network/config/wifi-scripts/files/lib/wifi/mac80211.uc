@@ -109,11 +109,15 @@ set ${si}=wifi-iface
 set ${si}.device='${name}'
 set ${si}.network='lan'
 set ${si}.mode='ap'
-set ${si}.ssid='${defaults?.ssid || "OpenWrt"}'
+let default_ssid = "OpenWrt";
+if (band_name == "2G")
+default_ssid = "OpenWrt";
+else if (band_name == "5G")
+default_ssid = "OpenWrt-5G";
+set ${si}.ssid='${defaults?.ssid || default_ssid}'
 set ${si}.encryption='${defaults?.encryption || encryption}'
 set ${si}.key='${defaults?.key || ""}'
-set ${si}.disabled='${defaults ? 0 : 1}'
-
+set ${si}.disabled='${defaults ? 1 : 0}'
 `);
 		config[name] = {};
 		commit = true;
