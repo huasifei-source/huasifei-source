@@ -23,6 +23,11 @@ mediatek_setup_interfaces()
 	zbtlink,zbt-z8103ax-c)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" eth1
 		;;
+	huasifei,ws1698)
+		ucidef_add_switch "switch0" \
+			"0:lan:4" "1:lan:3" "2:lan:2" "3:lan:1" "6u@eth0"
+		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" eth1
+		;;
 	zbtlink,zbt-z8803be)
 		ucidef_set_interfaces_lan_wan "lan0 lan1 lan2" eth1
 		ucidef_set_interface "wan_sfp" device "eth2" protocol "none"
