@@ -1822,7 +1822,7 @@ define Device/huasifei_wh3000-pro-emmc
   DEVICE_DTS := mt7981b-huasifei-wh3000-pro-emmc
   DEVICE_DTS_DIR := ../dts
   DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
-	kmod-hwmon-pwmfan kmod-usb3 f2fsck mkf2fs
+	kmod-hwmon-pwmfan kmod-usb3 f2fsck mkf2fs uci-app-qmodem luci-light
   SUPPORTED_DEVICES += huasifei,wh3000-pro
   KERNEL_INITRAMFS := kernel-bin | lzma | \
 	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
@@ -1865,7 +1865,8 @@ define Device/huasifei_ws1698
   DEVICE_MODEL := WS1698
   DEVICE_DTS := mt7981b-huasifei-ws1698
   DEVICE_DTS_DIR := ../dts
-  DEVICE_PACKAGES := kmod-mt7981-firmware mt7981-wo-firmware kmod-usb2 kmod-usb3
+  DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
+	kmod-hwmon-pwmfan kmod-usb3 f2fsck mkf2fs uci-app-qmodem luci-light
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
   PAGESIZE := 2048
