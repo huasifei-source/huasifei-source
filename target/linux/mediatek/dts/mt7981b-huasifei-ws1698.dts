@@ -11,10 +11,9 @@
 
 	aliases {
 		serial0 = &uart0;
-		led-boot = &led_status_lan;
-		led-failsafe = &led_status_lan;
-		led-running = &led_status_lan;
-		led-upgrade = &led_status_lan;
+		led-boot = &lan_led;
+		led-failsafe = &lan_led;
+		led-upgrade = &lan_led;
 	};
 
 	memory {
@@ -42,37 +41,47 @@
 		
 	};
 
-	leds {
+	gpio-leds {
 		compatible = "gpio-leds";
 
-		led_status_red: red {
+		led-0 {
 			label = "amber:5g";
 			gpios = <&pio 6 GPIO_ACTIVE_LOW>;
 		};
 
-		led_status_green: green {
-			label = "green:4g";
-			gpios = <&pio 9 GPIO_ACTIVE_LOW>;
-		};
-		
-		led_status_blue: blue {
+		led-1 {
 			label = "green:5g";
 			gpios = <&pio 7 GPIO_ACTIVE_LOW>;
 		};
-		
-		led_status_4g: 4g {
-			label = "amber:4g";
-			gpios = <&pio 11 GPIO_ACTIVE_LOW>;
+
+		led-2 {
+			label = "amber:gbe";
+			gpios = <&pio 8 GPIO_ACTIVE_LOW>;
 		};
-		
-		led_status_lan: lan {
+
+		led-3 {
+			label = "green:4g";
+			gpios = <&pio 9 GPIO_ACTIVE_LOW>;
+		};
+
+		lan_led: led-4 {
 			label = "green:lan";
 			gpios = <&pio 10 GPIO_ACTIVE_LOW>;
 		};
-		
-		led_status_wan: wan {
-			label = "amber:gbe";
-			gpios = <&pio 8 GPIO_ACTIVE_HIGH>;
+
+		led-5 {
+			label = "amber:4g";
+			gpios = <&pio 11 GPIO_ACTIVE_LOW>;
+		};
+
+		led-6 {
+			label = "blue:wlan2g";
+			gpios = <&pio 34 GPIO_ACTIVE_LOW>;
+		};
+
+		led-7 {
+			label = "blue:wlan5g";
+			gpios = <&pio 35 GPIO_ACTIVE_LOW>;
 		};
 
 	};
