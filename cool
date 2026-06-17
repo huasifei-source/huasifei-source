@@ -1,0 +1,39 @@
+#!/bin/sh
+# OpenWrt 配置自动写入脚本
+# 用法：在 OpenWrt 源码根目录下运行 rm tmp -rf && rm.config-> make menuconfig->./cool
+set -e  # 遇到错误立即退出
+CONFIG_FILE=".config"
+# 函数：写入或启用某个配置项
+# 参数1：配置项名称（如 CONFIG_LUCI_LANG_zh_Hans）
+# 参数2：配置值（如 y）
+set_config() {
+    local key="$1"
+    local val="$2"
+    local line="${key}=${val}"
+    if grep -q "^${key}=" "${CONFIG_FILE}"; then
+        echo "[跳过] ${key} 已设置为 $(grep "^${key}=" "${CONFIG_FILE}")"
+    elif grep -q "^# ${key} is not set" "${CONFIG_FILE}"; then
+        sed -i "s/^# ${key} is not set/${line}/" "${CONFIG_FILE}"
+        echo "[修改] 已将 ${key} 从未设置改为 ${line}"
+    else
+        echo "${line}" >> "${CONFIG_FILE}"
+        echo "[新增] 已添加 ${line}"
+    fi
+}
+# 主执行函数
+main() {
+    # 检查 .config 文件是否存在
+    if [ ! -f "${CONFIG_FILE}" ]; then
+        echo "错误：未找到 ${CONFIG_FILE}，请先执行 make menuconfig 生成配置。"
+        exit 1
+    fi
+    # 写入指定的配置项
+    set_config "CONFIG_LUCI_LANG_zh_Hans" "y"
+    echo "=============================="
+    echo "所有配置项处理完毕，开始同步依赖..."
+    make defconfig
+    echo "=============================="
+    echo "开始编译（使用 $(nproc) 个线程）..."
+    make V=s -j$(nproc)
+}
+main "$@"
