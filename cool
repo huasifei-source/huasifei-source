@@ -29,6 +29,9 @@ main() {
     fi
     # 写入指定的配置项
     set_config "CONFIG_LUCI_LANG_zh_Hans" "y"
+    set_config "CONFIG_BUSYBOX_CUSTOM" "y"
+    set_config "CONFIG_BUSYBOX_CONFIG_TELNETD" "y"
+    set_config "CONFIG_BUSYBOX_CONFIG_FEATURE_TELNETD_STANDALONE" "y"
     echo "=============================="
     echo "所有配置项处理完毕，开始同步依赖..."
     make defconfig
