@@ -4,6 +4,23 @@
 . /lib/functions.sh
 . /usr/share/libubox/jshn.sh
 
+hex_add_2digit() {
+    local byte="$1"
+    local inc="${2:-0}"
+    local val=$((0x$byte + inc))
+    val=$((val & 0xFF))          # 取低8位（模256）
+    [ $val -eq 0 ] && val=1     # 跳过0x00
+    printf "%02x" $val
+}
+
+change_mac_addr_add(){
+	mac="$1"
+	first=$(echo "$mac" | cut -d: -f1)
+	rest=$(echo "$mac" | cut -d: -f2-)
+	new_first=$(hex_add_2digit "$first" 2)
+	echo "$new_first:$rest"   
+}
+
 usage() {
 	cat <<EOF
 Usage: $0 [config|up|down|reconf|reload|status|isup]
@@ -62,21 +79,24 @@ wifi_detect_notice() {
 }
 
 wifi_config() {
+	mac_addr=`getmac | awk -F: '{gsub(/:/,""); print substr($0, length($0)-5)}'`
 	ucode /usr/share/hostap/wifi-detect.uc
 	[ ! -f /etc/config/wireless ] && touch /etc/config/wireless
 	ucode /lib/wifi/mac80211.uc | uci -q batch
 
 	ssid_2g=`uci get wireless.default_radio0.ssid`                                      
-	ssid_5g=`uci get wireless.default_radio1.ssid`             
-																	
-	mac_addr=`getmac | awk -F: '{gsub(/:/,""); print substr($0, length($0)-5)}'`
+	ssid_5g=`uci get wireless.default_radio1.ssid`           
+
+	mac_addr_5G=$(change_mac_addr_add "`getmac`")																
+	uci set wireless.default_radio1.macaddr="$mac_addr_5G"
 																					
 	if [ "$ssid_2g" = "null" -a "$ssid_5g" = "null" ];then                              
 		uci set wireless.default_radio0.ssid="WIFI-2G-${mac_addr}"                      
-		uci set wireless.default_radio1.ssid="WIFI-5G-${mac_addr}"                      
-			echo "wifi ssid is null,change it default!" >>/dev/kmsg                                     
-		uci commit                                                              
-	fi  
+		uci set wireless.default_radio1.ssid="WIFI-5G-${mac_addr}"                    
+			echo "wifi ssid is null,change it default!" >>/dev/kmsg                                                                                                  
+	fi 
+
+	uci commit  
 
 	for driver in $DRIVERS; do (
 		if eval "type detect_$driver" 2>/dev/null >/dev/null; then
