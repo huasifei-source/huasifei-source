@@ -1,8 +1,9 @@
 #!/bin/sh
-# OpenWrt 配置自动写入脚本
-# 用法：在 OpenWrt 源码根目录下运行 rm tmp -rf && rm.config-> make menuconfig->./cool
+# OpenWrt 配置自动写入脚本（从 change_config 文件批量导入）
+# 用法：在 OpenWrt 源码根目录下运行 rm tmp -rf && rm .config -> make menuconfig -> ./cool
 set -e  # 遇到错误立即退出
 CONFIG_FILE=".config"
+CHANGE_FILE="change_config"   # 包含配置项的文件，每行格式：CONFIG_KEY=y 或 CONFIG_KEY=value
 # 函数：写入或启用某个配置项
 # 参数1：配置项名称（如 CONFIG_LUCI_LANG_zh_Hans）
 # 参数2：配置值（如 y）
@@ -27,11 +28,31 @@ main() {
         echo "错误：未找到 ${CONFIG_FILE}，请先执行 make menuconfig 生成配置。"
         exit 1
     fi
-    # 写入指定的配置项
-    set_config "CONFIG_LUCI_LANG_zh_Hans" "y"
-    set_config "CONFIG_BUSYBOX_CUSTOM" "y"
-    set_config "CONFIG_BUSYBOX_CONFIG_TELNETD" "y"
-    set_config "CONFIG_BUSYBOX_CONFIG_FEATURE_TELNETD_STANDALONE" "y"
+    # 检查 change_config 文件是否存在
+    if [ ! -f "${CHANGE_FILE}" ]; then
+        echo "错误：未找到 ${CHANGE_FILE}，请创建该文件并填入需要修改的配置项。"
+        exit 1
+    fi
+    echo "开始从 ${CHANGE_FILE} 读取配置并应用到 ${CONFIG_FILE}..."
+    # 逐行读取 change_config 文件
+    while IFS= read -r raw_line; do
+        # 去掉前后空白
+        line=$(echo "${raw_line}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        # 跳过空行和以 # 开头的注释行
+        if [ -z "${line}" ] || echo "${line}" | grep -q '^#'; then
+            continue
+        fi
+        # 提取键名（等号之前的部分）和值（等号之后的部分）
+        key=$(echo "${line}" | cut -d'=' -f1)
+        val=$(echo "${line}" | cut -d'=' -f2-)
+        # 检查基本格式：必须有键名和等号，且值不能为空（允许值为 y、n、m 或其它字符串）
+        if [ -z "${key}" ] || [ -z "${val}" ]; then
+            echo "[警告] 跳过格式不正确的行: ${raw_line}"
+            continue
+        fi
+        # 调用原有的 set_config 函数应用该配置
+        set_config "${key}" "${val}"
+    done < "${CHANGE_FILE}"
     echo "=============================="
     echo "所有配置项处理完毕，开始同步依赖..."
     make defconfig
