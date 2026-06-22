@@ -1831,6 +1831,22 @@ define Device/huasifei_wh3000-pro-emmc
 endef
 TARGET_DEVICES += huasifei_wh3000-pro-emmc
 
+define Device/huasifei_wh3000-emmc
+  DEVICE_VENDOR := Huasifei
+  DEVICE_MODEL := WH3000
+  DEVICE_VARIANT := eMMC
+  DEVICE_DTS := mt7981b-huasifei-wh3000-emmc
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
+	kmod-hwmon-pwmfan kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
+  luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount
+  SUPPORTED_DEVICES += huasifei,wh3000-pro
+  KERNEL_INITRAMFS := kernel-bin | lzma | \
+	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += huasifei_wh3000-emmc
+
 define Device/huasifei_wh3000-pro-nand
   DEVICE_VENDOR := Huasifei
   DEVICE_MODEL := WH3000 Pro

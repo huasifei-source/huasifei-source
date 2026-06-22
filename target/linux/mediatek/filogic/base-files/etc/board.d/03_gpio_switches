@@ -6,6 +6,7 @@ board=$(board_name)
 
 case "$board" in
 huasifei,wh3000-pro-emmc|\
+huasifei,wh3000-emmc|\
 huasifei,wh3000-pro-nand)
 	ucidef_add_gpio_switch "modem_power" "Modem power" "modem_power" "0"
 	;;

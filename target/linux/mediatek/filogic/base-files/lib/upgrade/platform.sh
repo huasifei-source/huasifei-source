@@ -200,6 +200,7 @@ platform_do_upgrade() {
 	globitel,bt-r320|\
 	huasifei,wh3000|\
 	huasifei,wh3000-pro-emmc|\
+	huasifei,wh3000-emmc|\
 	smartrg,sdg-8612|\
 	smartrg,sdg-8614|\
 	smartrg,sdg-8622|\
