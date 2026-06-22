@@ -34,23 +34,24 @@ main() {
         exit 1
     fi
     echo "开始从 ${CHANGE_FILE} 读取配置并应用到 ${CONFIG_FILE}..."
-    # 逐行读取 change_config 文件
     while IFS= read -r raw_line; do
-        # 去掉前后空白
+        # 去掉首尾空白
         line=$(echo "${raw_line}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        # 跳过空行和以 # 开头的注释行
-        if [ -z "${line}" ] || echo "${line}" | grep -q '^#'; then
+        # 删除行内注释（# 及之后的内容）
+        line=$(echo "${line}" | sed 's/#.*$//')
+        # 再次去掉尾部空白（注释位置可能留下空格）
+        line=$(echo "${line}" | sed 's/[[:space:]]*$//')
+        # 跳过空行
+        if [ -z "${line}" ]; then
             continue
         fi
-        # 提取键名（等号之前的部分）和值（等号之后的部分）
         key=$(echo "${line}" | cut -d'=' -f1)
         val=$(echo "${line}" | cut -d'=' -f2-)
-        # 检查基本格式：必须有键名和等号，且值不能为空（允许值为 y、n、m 或其它字符串）
+        # 基本格式检查
         if [ -z "${key}" ] || [ -z "${val}" ]; then
             echo "[警告] 跳过格式不正确的行: ${raw_line}"
             continue
         fi
-        # 调用原有的 set_config 函数应用该配置
         set_config "${key}" "${val}"
     done < "${CHANGE_FILE}"
     echo "=============================="
