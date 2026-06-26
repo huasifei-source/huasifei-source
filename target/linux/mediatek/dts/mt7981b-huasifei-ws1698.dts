@@ -21,8 +21,9 @@
 	};
 	
 	chosen {
-		stdout-path = "serial0:115200n8";
-	};
+    stdout-path = "serial0:115200n8";
+    bootargs = "console=ttyS0,115200n1 loglevel=8 earlycon=uart8250,mmio32,0x11002000";
+};
 
 	gpio-keys {
 		compatible = "gpio-keys";
@@ -156,7 +157,7 @@
 
 			partition@580000 {
 				label = "ubi";
-				reg = <0x580000 0x6e00000>;
+				reg = <0x580000 0xe280000>;
 			};
 
 			factory: partition@180000 {
@@ -166,7 +167,7 @@
 
 			partition@7380000 {
 				label = "config";
-				reg = <0x7380000 0x80000>;
+				reg = <0xe800000 0x80000>;
 			};
 
 			partition@0 {
@@ -281,4 +282,3 @@
 		reg = <0x004 0x6>;
 	};
 };
- 
