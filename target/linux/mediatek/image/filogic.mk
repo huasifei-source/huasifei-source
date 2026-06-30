@@ -1824,7 +1824,7 @@ define Device/huasifei_wh3000-pro-emmc
   DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
 	kmod-hwmon-pwmfan kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
   luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
-  luci-app-mwan3
+  luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat
   SUPPORTED_DEVICES += huasifei,wh3000-pro
   KERNEL_INITRAMFS := kernel-bin | lzma | \
 	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
@@ -1841,7 +1841,7 @@ define Device/huasifei_wh3000-emmc
   DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
 	kmod-hwmon-pwmfan kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
   luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
-  luci-app-mwan3
+  luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat
   SUPPORTED_DEVICES += huasifei,wh3000-pro
   KERNEL_INITRAMFS := kernel-bin | lzma | \
 	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
@@ -1887,7 +1887,7 @@ define Device/huasifei_ws1698
   DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
 	kmod-hwmon-pwmfan kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
   luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
-  luci-app-mwan3
+  luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
   PAGESIZE := 2048
