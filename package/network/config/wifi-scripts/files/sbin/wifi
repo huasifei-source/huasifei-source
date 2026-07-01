@@ -88,7 +88,7 @@ wifi_config() {
 	ssid_5g=`uci get wireless.default_radio1.ssid`           
 
 	mac_addr_5G=$(change_mac_addr_add "`getmac`")																
-	uci set wireless.default_radio1.macaddr="$mac_addr_5G"
+	#uci set wireless.default_radio1.macaddr="$mac_addr_5G"
 																					
 	if [ "$ssid_2g" = "null" -a "$ssid_5g" = "null" ];then                              
 		uci set wireless.default_radio0.ssid="WIFI-2G-${mac_addr}"                      
