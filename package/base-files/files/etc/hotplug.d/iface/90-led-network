@@ -1,0 +1,30 @@
+#!/bin/sh
+
+[ "$ACTION" = "ifup" -o "$ACTION" = "ifdown" ] || exit 0
+
+case "$INTERFACE" in
+    lan|loopback|wg*|vpn*|tailscale*|zerotier*)
+        exit 0
+        ;;
+esac
+
+. /lib/functions/leds.sh
+
+RED_LED=$(get_dt_led boot)
+BLUE_LED=$(get_dt_led running)
+
+[ -z "$RED_LED" ] && exit 0
+[ -z "$BLUE_LED" ] && exit 0
+
+led_off "$RED_LED"
+led_off "$BLUE_LED"
+sleep 1
+
+if [ "$ACTION" = "ifup" ]; then
+    led_timer "$RED_LED" 1000 1000
+    led_timer "$BLUE_LED" 1000 1000
+    logger -t led-network "$INTERFACE up: red+blue slow blink"
+elif [ "$ACTION" = "ifdown" ]; then
+    led_on "$BLUE_LED"
+    logger -t led-network "$INTERFACE down: blue solid"
+fi

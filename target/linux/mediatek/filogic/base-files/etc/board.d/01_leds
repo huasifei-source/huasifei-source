@@ -126,6 +126,11 @@ glinet,gl-xe3000)
 huasifei,wh3000)
 	ucidef_set_led_netdev "wan" "WAN" "red:wan" "eth1" "link tx rx"
 	;;
+huasifei,wh3000-pro-emmc|\
+huasifei,wh3000-emmc)
+    # LED states handled by DTS aliases (led-boot=red, led-running=blue)
+    # and /etc/hotplug.d/iface/90-led-network (dual blink on WAN up)
+    ;;
 huasifei,wh3000r-nand)
 	ucidef_set_led_netdev "wan" "WAN" "blue:wan-online" "wan" "link"
 	;;
