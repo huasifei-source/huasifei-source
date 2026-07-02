@@ -21,6 +21,18 @@ set_config() {
         echo "[新增] 已添加 ${line}"
     fi
 }
+
+apply_patches() {
+    local patches_dir="./patches"
+    if [ -d "${patches_dir}/feeds" ]; then
+        cp -rpf "${patches_dir}/feeds/." ./feeds/
+        echo "  [patch] applied"
+    fi
+}
+
+
+
+
 # 主执行函数
 main() {
     # 检查 .config 文件是否存在
@@ -57,6 +69,8 @@ main() {
     echo "=============================="
     echo "所有配置项处理完毕，开始同步依赖..."
     make defconfig
+    echo "========apply_patches========="
+    apply_patches
     echo "=============================="
     echo "开始编译（使用 $(nproc) 个线程）..."
     make V=s -j$(nproc)

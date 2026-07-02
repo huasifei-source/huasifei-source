@@ -23,7 +23,7 @@ define Package/luci-app-fancontrol
   CATEGORY:=LuCI
   SUBMENU:=3. Applications
   TITLE:=LuCI Fan Control
-  DEPENDS:=+luci-base +rpcd +jsonfilter +kmod-hwmon-core +kmod-hwmon-pwmfan +kmod-i2c-core +lm-sensors
+  DEPENDS:=+luci-base +rpcd +jsonfilter +kmod-hwmon-core +kmod-hwmon-pwmfan +kmod-i2c-core
   PKGARCH:=all
 endef
 
