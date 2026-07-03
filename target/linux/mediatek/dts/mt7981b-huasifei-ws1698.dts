@@ -10,10 +10,10 @@
 	compatible = "huasifei,ws1698", "mediatek,mt7981";
 
 	aliases {
-		serial0 = &uart0;
-		led-boot = &lan_led;
-		led-failsafe = &lan_led;
-		led-upgrade = &lan_led;
+	serial0 = &uart0;
+	led-boot = &wifi_led;
+	led-failsafe = &wifi_led;
+	led-upgrade = &wifi_led;
 	};
 
 	memory {
@@ -43,49 +43,34 @@
 	};
 
 	gpio-leds {
-		compatible = "gpio-leds";
+	compatible = "gpio-leds";
 
-		led-0 {
-			label = "amber:5g";
-			gpios = <&pio 6 GPIO_ACTIVE_LOW>;
-		};
-
-		led-1 {
-			label = "green:5g";
-			gpios = <&pio 7 GPIO_ACTIVE_LOW>;
-		};
-
-		led-2 {
-			label = "amber:gbe";
-			gpios = <&pio 8 GPIO_ACTIVE_LOW>;
-		};
-
-		led-3 {
-			label = "green:4g";
-			gpios = <&pio 9 GPIO_ACTIVE_LOW>;
-		};
-
-		lan_led: led-4 {
-			label = "green:lan";
-			gpios = <&pio 10 GPIO_ACTIVE_LOW>;
-		};
-
-		led-5 {
-			label = "amber:4g";
-			gpios = <&pio 11 GPIO_ACTIVE_LOW>;
-		};
-
-		led-6 {
-			label = "blue:wlan2g";
-			gpios = <&pio 34 GPIO_ACTIVE_LOW>;
-		};
-
-		led-7 {
-			label = "blue:wlan5g";
-			gpios = <&pio 35 GPIO_ACTIVE_LOW>;
-		};
-
+	led_5g_amber: led-0 {
+		label = "amber:5g";
+		gpios = <&pio 6 GPIO_ACTIVE_LOW>;
+		default-state = "off";
 	};
+	led_5g_green: led-1 {
+		label = "green:5g";
+		gpios = <&pio 7 GPIO_ACTIVE_LOW>;
+		default-state = "off";
+	};
+	led_4g_green: led-2 {
+		label = "green:4g";
+		gpios = <&pio 9 GPIO_ACTIVE_LOW>;
+		default-state = "off";
+	};
+	wifi_led: led-3 {
+	label = "green:wifi";
+	gpios = <&pio 10 GPIO_ACTIVE_LOW>;
+	default-state = "off";
+	};
+	led_4g_amber: led-4 {
+		label = "amber:4g";
+		gpios = <&pio 11 GPIO_ACTIVE_LOW>;
+		default-state = "off";
+	};
+};
 };
 
 &eth {
