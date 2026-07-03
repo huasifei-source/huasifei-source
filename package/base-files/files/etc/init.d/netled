@@ -8,21 +8,94 @@ start_service() {
     procd_set_param command /bin/sh -c '
 . /lib/functions/leds.sh
 
-while true; do
-    RED_LED=$(get_dt_led boot)
-    BLUE_LED=$(get_dt_led running)
+# 检测机型
+MODEL=$(cat /proc/device-tree/model 2>/dev/null | tr -d "\0")
 
-    if [ -n "$RED_LED" ] || [ -n "$BLUE_LED" ]; then
-        if ping -c 1 -W 3 119.29.29.29 >/dev/null 2>&1; then
-            led_timer "$RED_LED" 1000 1000 2>/dev/null
-            led_timer "$BLUE_LED" 1000 1000 2>/dev/null
+# ============================================================
+# 1698 机型：WiFi + 4G/5G 网络灯 + ping 外网检测
+# ============================================================
+if echo "$MODEL" | grep -q "1698"; then
+
+    # 找 qmodem 缓存文件（动态获取 config section 名）
+    find_cache() {
+        MODEM_SECTION=$(uci show qmodem 2>/dev/null | grep "=modem-device" | head -1 | cut -d"=" -f1 | cut -d"." -f2)
+        [ -n "$MODEM_SECTION" ] && echo "/tmp/cache_info_${MODEM_SECTION}"
+    }
+
+    # LED 名（需与 DTS 中 label 一致）
+    WIFI_LED="green:wifi"
+    LED_5G_O="amber:5g"
+    LED_5G_G="green:5g"
+    LED_4G_G="green:4g"
+    LED_4G_O="amber:4g"
+
+    # 启动时先全灭
+    for led in "$WIFI_LED" "$LED_4G_O" "$LED_4G_G" "$LED_5G_O" "$LED_5G_G"; do
+        led_off "$led" 2>/dev/null
+    done
+
+    while true; do
+        # ---- WiFi 灯 ----
+        WIFI_UP=$(iwinfo 2>/dev/null | grep -c "ESSID")
+        if [ "$WIFI_UP" -gt 0 ] 2>/dev/null; then
+            led_on "$WIFI_LED" 2>/dev/null
         else
-            led_off "$RED_LED" 2>/dev/null
-            led_on "$BLUE_LED" 2>/dev/null
+            led_off "$WIFI_LED" 2>/dev/null
         fi
-    fi
-    sleep 10
-done
+
+        # ---- 网络灯 ----
+        CACHE_FILE=$(find_cache)
+        NET_TYPE=""
+
+        if [ -f "$CACHE_FILE" ]; then
+            NET_TYPE=$(jsonfilter -i "$CACHE_FILE" -e "@.modem_info[@.key=\"Network Type\"].value" 2>/dev/null)
+        fi
+
+        # 先关所有网络灯
+        led_off "$LED_4G_O" 2>/dev/null
+        led_off "$LED_4G_G" 2>/dev/null
+        led_off "$LED_5G_O" 2>/dev/null
+        led_off "$LED_5G_G" 2>/dev/null
+
+        # ping 通外网才亮灯
+        if ping -c 1 -W 3 119.29.29.29 >/dev/null 2>&1; then
+            case "$NET_TYPE" in
+                *LTE*)
+                    led_on "$LED_4G_O" 2>/dev/null
+                    led_on "$LED_4G_G" 2>/dev/null
+                    ;;
+                *NR*|*NR5G*)
+                    led_on "$LED_5G_O" 2>/dev/null
+                    led_on "$LED_5G_G" 2>/dev/null
+                    ;;
+            esac
+        fi
+
+        sleep 10
+    done
+
+# ============================================================
+# 3000 机型：原有逻辑（红蓝灯 ping 闪烁）
+# ============================================================
+else
+
+    while true; do
+        RED_LED=$(get_dt_led boot)
+        BLUE_LED=$(get_dt_led running)
+
+        if [ -n "$RED_LED" ] || [ -n "$BLUE_LED" ]; then
+            if ping -c 1 -W 3 119.29.29.29 >/dev/null 2>&1; then
+                led_timer "$RED_LED" 1000 1000 2>/dev/null
+                led_timer "$BLUE_LED" 1000 1000 2>/dev/null
+            else
+                led_off "$RED_LED" 2>/dev/null
+                led_on "$BLUE_LED" 2>/dev/null
+            fi
+        fi
+        sleep 10
+    done
+
+fi
 '
     procd_set_param respawn
     procd_close_instance
