@@ -1,6 +1,27 @@
 obj-$(CONFIG_RAMBUS_DDK) += crypto-eip-ddk-ctrl-app.o
 
+ccflags-y += -I$(src)/../../inc
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/configs
 ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/configs/app
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/device
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/device/lkm
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/device/lkm/of
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/dmares
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/firmware_api
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/kit/builder/sa
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/kit/builder/token
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/kit/eip197
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/kit/iotoken
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/kit/list
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/kit/ring
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/log
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/libc
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/shdevxs
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/slad
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/slad/lkm
+ccflags-y += -I$(src)/../../inc/crypto-eip/ddk/umdevxs
+ccflags-y += -DEIP197_BUS_VERSION_AXI4
 
 # Global Control
 crypto-eip-ddk-ctrl-app-y += ../../app/da_gc_drbg.o
