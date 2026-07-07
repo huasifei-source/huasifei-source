@@ -20,6 +20,8 @@ else
 	fi
 fi
 
+OPENWRT_VER=25.12
+
 if [ -z ${1} ]; then
         MTK_FEEDS_DIR=feeds/mtk_openwrt_feed
 fi
