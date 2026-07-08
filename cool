@@ -22,6 +22,21 @@ set_config() {
     fi
 }
 
+# 函数：禁用某个配置项（将 CONFIG_KEY=y 改为 # CONFIG_KEY is not set）
+set_config_unset() {
+    local key="$1"
+    local not_set_line="# ${key} is not set"
+    if grep -q "^# ${key} is not set" "${CONFIG_FILE}"; then
+        echo "[跳过] ${key} 已经是未设置状态"
+    elif grep -q "^${key}=" "${CONFIG_FILE}"; then
+        sed -i "s/^${key}=.*/${not_set_line}/" "${CONFIG_FILE}"
+        echo "[修改] 已将 ${key} 从启用改为未设置"
+    else
+        echo "${not_set_line}" >> "${CONFIG_FILE}"
+        echo "[新增] 已添加 ${not_set_line}"
+    fi
+}
+
 apply_patches() {
     local patches_dir="./patches"
     if [ -d "${patches_dir}/feeds" ]; then
@@ -49,14 +64,20 @@ main() {
     while IFS= read -r raw_line; do
         # 去掉首尾空白
         line=$(echo "${raw_line}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-        # 删除行内注释（# 及之后的内容）
-        line=$(echo "${line}" | sed 's/#.*$//')
-        # 再次去掉尾部空白（注释位置可能留下空格）
-        line=$(echo "${line}" | sed 's/[[:space:]]*$//')
         # 跳过空行
         if [ -z "${line}" ]; then
             continue
         fi
+        # 检测"禁用配置"格式: # CONFIG_XXX is not set（必须在删除注释之前处理）
+        if echo "${line}" | grep -q '^# .* is not set$'; then
+            key=$(echo "${line}" | sed 's/^# //; s/ is not set$//')
+            set_config_unset "${key}"
+            continue
+        fi
+        # 删除行内注释（# 及之后的内容）
+        line=$(echo "${line}" | sed 's/#.*$//')
+        # 再次去掉尾部空白（注释位置可能留下空格）
+        line=$(echo "${line}" | sed 's/[[:space:]]*$//')
         key=$(echo "${line}" | cut -d'=' -f1)
         val=$(echo "${line}" | cut -d'=' -f2-)
         # 基本格式检查
