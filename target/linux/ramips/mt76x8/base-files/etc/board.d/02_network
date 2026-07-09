@@ -67,6 +67,10 @@ ramips_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"1:lan" "0:wan" "6@eth0"
 		;;
+	huasifei,wh1200)
+		ucidef_add_switch "switch0" \
+			"0:lan" "1:lan" "6@eth0"
+		;;
 	hilink,hlk-7628n|\
 	hilink,hlk-7688a|\
 	hiwifi,hc5861b|\
@@ -237,6 +241,9 @@ ramips_setup_macs()
 	vocore,vocore2|\
 	vocore,vocore2-lite)
 		label_mac=$(mtd_get_mac_binary factory 0x4)
+		;;
+	huasifei,wh1200)
+		label_mac=$(mtd_get_mac_binary factory 0x28)
 		;;
 	wavlink,wl-wn570ha1|\
 	zbtlink,zbt-we1226)

@@ -834,3 +834,13 @@ define Device/zyxel_keenetic-extra-ii
 	check-size | zyimage -d 6162 -v "ZyXEL Keenetic Extra II"
 endef
 TARGET_DEVICES += zyxel_keenetic-extra-ii
+
+define Device/huasifei_wh1200
+  IMAGE_SIZE := 16064k
+  DEVICE_VENDOR := HUASIFEI
+  DEVICE_MODEL := WH1200
+  DEVICE_PACKAGES := kmod-mt7615e kmod-mt7663-firmware-ap \
+	kmod-usb2 kmod-usb-ohci kmod-usb-net-qmi-wwan \
+	kmod-usb-serial kmod-usb-serial-option uqmi
+endef
+TARGET_DEVICES += huasifei_wh1200
