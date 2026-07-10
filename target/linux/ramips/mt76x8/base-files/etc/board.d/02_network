@@ -243,7 +243,8 @@ ramips_setup_macs()
 		label_mac=$(mtd_get_mac_binary factory 0x4)
 		;;
 	huasifei,wh1200)
-		label_mac=$(mtd_get_mac_binary factory 0x28)
+		label_mac=$(mtd_get_mac_binary factory 0x4)
+		lan_mac=$(macaddr_add "$label_mac" 1)        # br-lan = base+1
 		;;
 	wavlink,wl-wn570ha1|\
 	zbtlink,zbt-we1226)
@@ -262,6 +263,9 @@ ramips_setup_macs()
 	[ -n "$lan_mac" ] && ucidef_set_interface_macaddr "lan" $lan_mac
 	[ -n "$wan_mac" ] && ucidef_set_interface_macaddr "wan" $wan_mac
 	[ -n "$label_mac" ] && ucidef_set_label_macaddr $label_mac
+	# WH1200: eth0.1 = base+3
+	[ "$board" = "huasifei,wh1200" ] && \
+		ucidef_set_network_device_mac "eth0.1" "$(macaddr_add "$(mtd_get_mac_binary factory 0x4)" 3)"
 }
 
 board_config_update
