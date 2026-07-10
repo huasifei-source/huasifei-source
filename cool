@@ -88,8 +88,6 @@ main() {
         set_config "${key}" "${val}"
     done < "${CHANGE_FILE}"
     echo "=============================="
-    echo "所有配置项处理完毕，开始同步依赖..."
-    make defconfig
     echo "========apply_patches========="
     apply_patches
     echo "=============================="
