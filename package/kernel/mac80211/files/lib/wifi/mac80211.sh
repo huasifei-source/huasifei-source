@@ -175,7 +175,7 @@ detect_mac80211() {
 			set wireless.radio${devidx}.channel=${channel}
 			set wireless.radio${devidx}.band=${mode_band}
 			set wireless.radio${devidx}.htmode=$htmode
-			set wireless.radio${devidx}.disabled=1
+			set wireless.radio${devidx}.disabled=0
 
 			set wireless.default_radio${devidx}=wifi-iface
 			set wireless.default_radio${devidx}.device=radio${devidx}
@@ -184,6 +184,10 @@ detect_mac80211() {
 			set wireless.default_radio${devidx}.ssid=OpenWrt
 			set wireless.default_radio${devidx}.encryption=none
 EOF
+		mac_addr=`getmac | awk -F: '{gsub(/:/,""); print substr($0, length($0)-5)}'`
+		set wireless.default_radio0.ssid="WIFI-2G-${mac_addr}"
+		set wireless.default_radio1.ssid="WIFI-5G-${mac_addr}"
+
 		uci -q commit wireless
 
 		devidx=$(($devidx + 1))
