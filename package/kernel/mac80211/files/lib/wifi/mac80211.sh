@@ -171,7 +171,6 @@ detect_mac80211() {
 		uci -q batch <<-EOF
 			set wireless.radio${devidx}=wifi-device
 			set wireless.radio${devidx}.type=mac80211
-			${dev_id}
 			set wireless.radio${devidx}.channel=${channel}
 			set wireless.radio${devidx}.band=${mode_band}
 			set wireless.radio${devidx}.htmode=$htmode
@@ -184,12 +183,12 @@ detect_mac80211() {
 			set wireless.default_radio${devidx}.ssid=OpenWrt
 			set wireless.default_radio${devidx}.encryption=none
 EOF
-		mac_addr=`getmac | awk -F: '{gsub(/:/,""); print substr($0, length($0)-5)}'`
-		set wireless.default_radio0.ssid="WIFI-2G-${mac_addr}"
-		set wireless.default_radio1.ssid="WIFI-5G-${mac_addr}"
-
 		uci -q commit wireless
 
 		devidx=$(($devidx + 1))
 	done
+	mac_addr=`getmac | awk -F: '{gsub(/:/,""); print substr($0, length($0)-5)}'`
+	uci set wireless.default_radio0.ssid="WIFI-2G-${mac_addr}"
+	uci set wireless.default_radio1.ssid="WIFI-5G-${mac_addr}"
+	uci commit wireless
 }
