@@ -515,6 +515,28 @@ if [ ! -s /etc/config/network ]; then
 
 	json_get_keys keys switch
 	for key in $keys; do generate_switch $key; done
+	json_get_keys keys network
+	for key in $keys; do generate_network $key $bridge_name; done
+
+	json_get_keys keys switch
+	for key in $keys; do generate_switch $key; done
+
+	json_get_keys keys network_device
+	for key in $keys; do
+		json_select network_device
+			json_select "$key"
+				json_get_vars macaddr
+			json_select ..
+		json_select ..
+		[ -n "$macaddr" ] && {
+			uci -q batch <<-EOF
+				add network device
+				set network.@device[-1].name='$key'
+				set network.@device[-1].macaddr='$macaddr'
+			EOF
+		}
+	done
+fi
 fi
 
 if [ ! -s /etc/config/system ]; then
