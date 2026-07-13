@@ -78,7 +78,7 @@ if echo "$MODEL" | grep -q "1698"; then
 # WH1200 机型：红灯(GPIO37)+蓝灯(GPIO3)
 #   上电：红灯亮（DTS default-state=on），蓝灯灭
 #   启动完成/无网络：红灯灭，蓝灯常亮
-#   有网络：红灯+蓝灯一起常亮
+#   有网络：红灯+蓝灯一起闪烁
 # ============================================================
 elif echo "$MODEL" | grep -q "WH1200"; then
 
@@ -88,9 +88,9 @@ elif echo "$MODEL" | grep -q "WH1200"; then
 
         if [ -n "$RED_LED" ] || [ -n "$BLUE_LED" ]; then
             if ping -c 1 -W 3 119.29.29.29 >/dev/null 2>&1; then
-                # 有网络：红灯+蓝灯一起常亮
-                led_on "$RED_LED" 2>/dev/null
-                led_on "$BLUE_LED" 2>/dev/null
+                # 有网络：红灯+蓝灯一起闪烁
+                led_timer "$RED_LED" 1000 1000 2>/dev/null
+                led_timer "$BLUE_LED" 1000 1000 2>/dev/null
             else
                 # 无网络：红灯灭，蓝灯常亮（系统已启动完成）
                 led_off "$RED_LED" 2>/dev/null
