@@ -11,6 +11,8 @@
 
 	aliases {
 		label-mac-device = &ethernet;
+		led-boot = &led_red;
+		led-running = &led_blue;
 	};
 
 	chosen {
@@ -30,13 +32,14 @@
 	leds {
 		compatible = "gpio-leds";
 
-		led1 {
-			label = "green:led1";
+		led_red: led_red {
+			label = "red:boot";
 			gpios = <&gpio 37 GPIO_ACTIVE_LOW>;
+			default-state = "on";
 		};
 
-		led2 {
-			label = "green:led2";
+		led_blue: led_blue {
+			label = "blue:running";
 			gpios = <&gpio 3 GPIO_ACTIVE_LOW>;
 		};
 	};
