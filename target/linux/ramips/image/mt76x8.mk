@@ -841,7 +841,7 @@ define Device/huasifei_wh1200
   DEVICE_MODEL := WH1200
   DEVICE_PACKAGES := kmod-mt7615e kmod-mt7663-firmware-ap \
 	kmod-usb2 kmod-usb-serial kmod-usb-net-qmi-wwan uqmi\
-	kmod-usb-serial-option luci-app-qmodem luci-light kmod-ipt-offload kmod-nf-flow iptables-mod-offload
+	kmod-usb-serial-option luci-app-qmodem luci-light kmod-ipt-offload kmod-nf-flow iptables-mod-offload atenl
 	
 endef
 TARGET_DEVICES += huasifei_wh1200
