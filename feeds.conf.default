@@ -3,3 +3,4 @@ src-git-full luci https://git.openwrt.org/project/luci.git^e98243ef9eb838cca80cd
 src-git-full routing https://git.openwrt.org/feed/routing.git^8071852b4556a02533cacb7a0f6a432df3507302
 src-git-full telephony https://git.openwrt.org/feed/telephony.git^920fbc5c0a2e4badf51bceff42e9a1e3eb693462
 src-git qmodem https://github.com/FUjr/QModem.git;main
+src-git mtk_openwrt_feed https://github.com/mediatek/mtk-openwrt-feeds.git
