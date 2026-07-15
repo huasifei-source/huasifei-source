@@ -303,6 +303,18 @@ define U-Boot/mt7981_cmcc_rax3000m-nand-ddr4
   DEPENDS:=+trusted-firmware-a-mt7981-spim-nand-ddr4
 endef
 
+define U-Boot/mt7981_huasifei_ws1610
+  NAME:=Huasifei WS1610
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=huasifei_ws1610
+  UBOOT_CONFIG:=mt7981_huasifei_ws1610
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7981-spim-nand-ddr4
+endef
+
 define U-Boot/mt7981_comfast_cf-wr632ax
   NAME:=COMFAST CF-WR632AX
   BUILD_SUBTARGET:=filogic
@@ -1257,6 +1269,7 @@ UBOOT_TARGETS := \
 	mt7981_glinet_gl-xe3000 \
 	mt7981_globitel_bt-r320 \
 	mt7981_h3c_magic-nx30-pro \
+	mt7981_huasifei_ws1610 \
 	mt7981_imou_hx21 \
 	mt7981_jcg_q30-pro \
 	mt7981_konka_komi-a31 \

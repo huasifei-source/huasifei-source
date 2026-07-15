@@ -23,6 +23,9 @@ mediatek_setup_interfaces()
 	zbtlink,zbt-z8103ax-c)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" eth1
 		;;
+	huasifei,ws1610)
+		ucidef_set_interfaces_lan_wan "lan" "wan wan2"
+		;;
 	huasifei,ws1698)
 		ucidef_add_switch "switch0" \
 			"0:lan:4" "1:lan:3" "2:lan:2" "3:lan:1" "6u@eth0"
@@ -63,6 +66,7 @@ mediatek_setup_interfaces()
 	creatlentem,clt-r30b1-112m|\
 	cudy,wr3000-v1|\
 	globitel,bt-r320|\
+	huasifei,ws1610|\
 	huasifei,wh3000r-nand|\
 	jcg,q30-pro|\
 	keenetic,kn-3711|\
@@ -273,6 +277,7 @@ mediatek_setup_macs()
 	bananapi,bpi-r3-mini|\
 	bananapi,bpi-r4|\
 	bananapi,bpi-r4-lite|\
+	huasifei,ws1610|\
 	huasifei,ws1698)
 		hw_mac=$(mtd_get_mac_binary Factory 0x4)
 		lan_mac="$(macaddr_add "$hw_mac" 1)"
