@@ -14,7 +14,12 @@ function get_str(iface, property) {
 }
 
 function get_int(iface, property) {
-	return int(get_str(iface, property));
+	const raw = get_str(iface, property);
+    if (raw == null || raw == '')
+        return 0;
+    const val = int(raw);
+    return (val >= 0) ? val : 0;
+
 }
 
 function get_uptime() {
