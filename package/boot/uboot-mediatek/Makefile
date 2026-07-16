@@ -304,7 +304,7 @@ define U-Boot/mt7981_cmcc_rax3000m-nand-ddr4
 endef
 
 define U-Boot/mt7981_huasifei_ws1610
-  NAME:=Huasifei WS1610
+  NAME:=Huasifei WS1610-Z
   BUILD_SUBTARGET:=filogic
   BUILD_DEVICES:=huasifei_ws1610
   UBOOT_CONFIG:=mt7981_huasifei_ws1610

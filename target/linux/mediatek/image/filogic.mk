@@ -1883,7 +1883,7 @@ TARGET_DEVICES += huasifei_wh3000r-nand
 
 define Device/huasifei_ws1610
   DEVICE_VENDOR := Huasifei
-  DEVICE_MODEL := WS1610
+  DEVICE_MODEL := WS1610-Z
   DEVICE_DTS := mt7981b-huasifei-ws1610
   DEVICE_DTS_DIR := ../dts
   UBINIZE_OPTS := -E 5

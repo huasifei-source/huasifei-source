@@ -137,7 +137,7 @@
 +/ {
 +	#address-cells = <1>;
 +	#size-cells = <1>;
-+	model = "Huasifei WS1610";
++	model = "Huasifei WS1610-Z";
 +	compatible = "mediatek,mt7981", "mediatek,mt7981-rfb";
 +
 +	chosen {

@@ -8,11 +8,10 @@
 #include "mt7981b.dtsi"
 
 / {
-	model = "Huasifei WS1610";
+	model = "Huasifei WS1610-Z";
 	compatible = "huasifei,ws1610", "mediatek,mt7981";
 
 	aliases {
-		label-mac-device = &gmac1;
 		led-boot = &led_wifi;
 		led-failsafe = &led_wifi;
 		led-running = &led_wifi;
@@ -51,12 +50,14 @@
 
 		led_wan1: led-wan1 {
 			function = LED_FUNCTION_WAN;
+			function-enumerator = <1>;
 			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&pio 11 GPIO_ACTIVE_LOW>;
 		};
 
 		led_wan2: led-wan2 {
 			function = LED_FUNCTION_WAN;
+			function-enumerator = <2>;
 			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&pio 6 GPIO_ACTIVE_LOW>;
 		};
@@ -84,10 +85,10 @@
 		compatible = "mediatek,eth-mac";
 		reg = <1>;
 		phy-mode = "gmii";
-		nvmem-cells = <&macaddr_factory_4 0>;
+		nvmem-cells = <&macaddr_factory_4 2>;
 		nvmem-cell-names = "mac-address";
 		phy-handle = <&int_gbe_phy>;
-		label = "wan";
+		label = "lan";
 	};
 
 	mdio: mdio-bus {
@@ -150,7 +151,6 @@
 			partition@180000 {
 				label = "Factory";
 				reg = <0x180000 0x200000>;
-				read-only;
 
 				nvmem-layout {
 					compatible = "fixed-layout";
@@ -211,7 +211,9 @@
 
 		port@0 {
 			reg = <0>;
-			label = "lan";
+			label = "wan";
+			nvmem-cells = <&macaddr_factory_4 3>;
+			nvmem-cell-names = "mac-address";
 		};
 
 		port@1 {
@@ -256,13 +258,7 @@
 
 	band@0 {
 		reg = <0>;
-		nvmem-cells = <&macaddr_factory_4 2>;
-		nvmem-cell-names = "mac-address";
-	};
-
-	band@1 {
-		reg = <1>;
-		nvmem-cells = <&macaddr_factory_4 3>;
+		nvmem-cells = <&macaddr_factory_4 0>;
 		nvmem-cell-names = "mac-address";
 	};
 };
