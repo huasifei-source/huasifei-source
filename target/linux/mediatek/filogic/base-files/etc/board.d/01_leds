@@ -136,8 +136,8 @@ huasifei,wh3000r-nand)
 	;;
 huasifei,ws1610)
 	ucidef_set_led_netdev "wifi" "WiFi" "green:wlan" "phy0-ap0" "link"
-	ucidef_set_led_netdev "wan1" "WAN1" "green:wan" "wan" "link"
-	ucidef_set_led_netdev "wan2" "WAN2" "green:wan" "wan2" "link"
+	ucidef_set_led_netdev "wan1" "WAN1" "green:wan-1" "wan" "link"
+	ucidef_set_led_netdev "wan2" "WAN2" "green:wan-2" "wan2" "link"
 	;;
 iptime,ax3000q)
 	ucidef_set_led_netdev "wan" "WAN" "amber:wan" "wan" "link tx rx"
