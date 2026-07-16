@@ -26,12 +26,24 @@ function get_uptime() {
 	return int(split(readfile('/proc/uptime'), '.', 2)[0]);
 }
 
+function get_str_safe(iface, property) {
+    try {
+        const raw = rtrim(readfile(sprintf('/var/run/mwan3track/%s/%s', iface, property)), '\n');
+        return (raw != '') ? raw : null;
+    } catch(e) {
+        return null;
+    }
+}
+
+
 function get_x_time(uptime, iface, property) {
-	let t = get_int(iface, property);
-	if (t > 0) {
-		t = uptime - t;
-	}
-	return t;
+	const raw = get_str_safe(iface, property);
+    if (raw == null)
+        return 0;       // ..................... 0 ......... NaN
+    const t = int(raw);
+    if (t > 0)
+        return uptime - t;
+    return 0;
 }
 
 function ucibool(val) {
