@@ -1,0 +1,26 @@
+#!/bin/sh
+# WS1610-Z: add wanb to firewall WAN zone and enable in mwan3
+
+. /lib/functions.sh
+
+case "$(board_name)" in
+	huasifei,ws1610)
+		# Add wanb/wanb6 to WAN firewall zone
+		# firewall zone sections are anonymous, find the one named 'wan'
+		for z in $(uci show firewall | grep "=zone$" | cut -d= -f1); do
+			if [ "$(uci get ${z}.name)" = "wan" ]; then
+				uci add_list ${z}.network='wanb'
+				uci add_list ${z}.network='wanb6'
+			fi
+		done
+
+		# Enable wanb in mwan3
+		uci set mwan3.wanb.enabled='1'
+		uci set mwan3.wanb6.enabled='1'
+
+		uci commit firewall
+		uci commit mwan3
+		;;
+esac
+
+exit 0
