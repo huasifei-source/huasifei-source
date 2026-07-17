@@ -1,24 +1,63 @@
 #!/bin/sh
-# WS1610-Z: add wanb to firewall WAN zone and enable in mwan3
+# WS1610-Z: Dual WAN configuration
+# - Add wanb to firewall WAN zone
+# - Set network interface metrics (wan=1, wanb=2)
+# - Clean up IPv6 from mwan3, fix member metrics and tracking IPs
 
 . /lib/functions.sh
 
 case "$(board_name)" in
 	huasifei,ws1610)
-		# Add wanb/wanb6 to WAN firewall zone
-		# firewall zone sections are anonymous, find the one named 'wan'
+		# --- Firewall: add wanb to WAN zone ---
 		for z in $(uci show firewall | grep "=zone$" | cut -d= -f1); do
 			if [ "$(uci get ${z}.name)" = "wan" ]; then
 				uci add_list ${z}.network='wanb'
-				uci add_list ${z}.network='wanb6'
 			fi
 		done
 
-		# Enable wanb in mwan3
+		# --- Network: set interface metrics ---
+		uci set network.wan.metric='1'
+		uci set network.wanb.metric='2'
+
+		# --- mwan3: enable wanb ---
 		uci set mwan3.wanb.enabled='1'
-		uci set mwan3.wanb6.enabled='1'
+
+		# --- mwan3: remove IPv6 members from all policies ---
+		for p in balanced wan_only wanb_only wan_wanb wanb_wan; do
+			uci -q del_list mwan3.${p}.use_member='wan6_m1_w3'
+			uci -q del_list mwan3.${p}.use_member='wan6_m2_w3'
+			uci -q del_list mwan3.${p}.use_member='wanb6_m1_w2'
+			uci -q del_list mwan3.${p}.use_member='wanb6_m1_w3'
+			uci -q del_list mwan3.${p}.use_member='wanb6_m2_w2'
+		done
+
+		# --- mwan3: delete IPv6 member sections ---
+		uci -q delete mwan3.wan6_m1_w3
+		uci -q delete mwan3.wan6_m2_w3
+		uci -q delete mwan3.wanb6_m1_w2
+		uci -q delete mwan3.wanb6_m1_w3
+		uci -q delete mwan3.wanb6_m2_w2
+
+		# --- mwan3: delete IPv6 interface sections ---
+		uci -q delete mwan3.wan6
+		uci -q delete mwan3.wanb6
+
+		# --- mwan3: delete IPv6 default rule ---
+		uci -q delete mwan3.default_rule_v6
+
+		# --- mwan3: fix wanb member metric (1 -> 2) ---
+		uci set mwan3.wanb_m1_w3.metric='2'
+
+		# --- mwan3: fix tracking IPs ---
+		uci -q delete mwan3.wan.track_ip
+		uci add_list mwan3.wan.track_ip='8.8.8.8'
+		uci add_list mwan3.wan.track_ip='180.76.76.76'
+		uci -q delete mwan3.wanb.track_ip
+		uci add_list mwan3.wanb.track_ip='8.8.8.8'
+		uci add_list mwan3.wanb.track_ip='180.76.76.76'
 
 		uci commit firewall
+		uci commit network
 		uci commit mwan3
 		;;
 esac
