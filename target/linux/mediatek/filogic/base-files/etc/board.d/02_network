@@ -24,7 +24,9 @@ mediatek_setup_interfaces()
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" eth1
 		;;
 	huasifei,ws1610)
-		ucidef_set_interfaces_lan_wan "lan" "wan wan2"
+		ucidef_set_interfaces_lan_wan "lan" "wan"
+		ucidef_set_interface "wanb" device "wan2" protocol "dhcp" metric "2"
+		ucidef_set_interface "wanb6" device "wan2" protocol "dhcpv6"
 		;;
 	huasifei,ws1698)
 		ucidef_add_switch "switch0" \
@@ -252,6 +254,7 @@ mediatek_setup_macs()
 	local board="$1"
 	local lan_mac=""
 	local wan_mac=""
+	local wanb_mac=""
 	local label_mac=""
 
 	case $board in
@@ -280,6 +283,7 @@ mediatek_setup_macs()
 		hw_mac=$(mtd_get_mac_binary Factory 0x4)
 		lan_mac="$(macaddr_add "$hw_mac" 2)"
 		wan_mac="$(macaddr_add "$hw_mac" 3)"
+		wanb_mac="$(macaddr_add "$hw_mac" 4)"
 		label_mac=$hw_mac
 		;;
 	huasifei,ws1698)
@@ -356,6 +360,7 @@ mediatek_setup_macs()
 
 	[ -n "$lan_mac" ] && ucidef_set_interface_macaddr "lan" $lan_mac
 	[ -n "$wan_mac" ] && ucidef_set_interface_macaddr "wan" $wan_mac
+	[ -n "$wanb_mac" ] && ucidef_set_interface_macaddr "wanb" $wanb_mac
 	[ -n "$label_mac" ] && ucidef_set_label_macaddr $label_mac
 	[ -n "$lan_mac" ] && ucidef_set_network_device_mac "eth0" $lan_mac
 }
