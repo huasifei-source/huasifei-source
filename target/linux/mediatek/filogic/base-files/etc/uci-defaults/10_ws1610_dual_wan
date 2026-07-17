@@ -48,6 +48,17 @@ case "$(board_name)" in
 		# --- mwan3: fix wanb member metric (1 -> 2) ---
 		uci set mwan3.wanb_m1_w3.metric='2'
 
+		# --- mwan3: fix balanced policy for true load balancing ---
+		# balanced 默认用 wanb_m1_w3 (metric=2)，与 wan_m1_w3 (metric=1) 不同级
+		# 结果是主备而非负载均衡。换成 wanb_m1_w2 (metric=1) 实现真正的负载均衡
+		uci -q del_list mwan3.balanced.use_member='wanb_m1_w3'
+		uci add_list mwan3.balanced.use_member='wanb_m1_w2'
+
+		# --- mwan3: disable HTTPS sticky ---
+		# sticky=1 会将所有到同一 IP 的 443 连接粘在一条 WAN 上
+		# aria2c 多连接到同一服务器时无法触发负载均衡
+		uci set mwan3.https.sticky='0'
+
 		# --- mwan3: fix tracking IPs ---
 		uci -q delete mwan3.wan.track_ip
 		uci add_list mwan3.wan.track_ip='8.8.8.8'
