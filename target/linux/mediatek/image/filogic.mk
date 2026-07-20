@@ -1825,7 +1825,7 @@ define Device/huasifei_wh3000-pro-emmc
 	kmod-hwmon-pwmfan kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
   luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
   luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
-  luci-app-fancontrol atenl
+  luci-app-fancontrol atenl kmod-tun luci-proto-openvpn
   SUPPORTED_DEVICES += huasifei,wh3000-pro
   KERNEL_INITRAMFS := kernel-bin | lzma | \
 	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
@@ -1843,7 +1843,7 @@ define Device/huasifei_wh3000-emmc
 	kmod-hwmon-pwmfan kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
   luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
   luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
-  luci-app-fancontrol atenl
+  luci-app-fancontrol atenl kmod-tun luci-proto-openvpn
   SUPPORTED_DEVICES += huasifei,wh3000-pro
   KERNEL_INITRAMFS := kernel-bin | lzma | \
 	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
@@ -1896,7 +1896,7 @@ define Device/huasifei_ws1610
 	kmod-usb3 f2fsck mkf2fs luci-light \
 	luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
 	luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
-	atenl
+	atenl kmod-tun luci-proto-openvpn 
   ARTIFACTS := preloader.bin bl31-uboot.fip
   ARTIFACT/preloader.bin := mt7981-bl2 spim-nand-ddr4
   ARTIFACT/bl31-uboot.fip := mt7981-bl31-uboot huasifei_ws1610
@@ -1916,7 +1916,7 @@ define Device/huasifei_ws1698
 	kmod-hwmon-pwmfan kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
   luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
   luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
-  atenl
+  atenl kmod-tun luci-proto-openvpn
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
   PAGESIZE := 2048
