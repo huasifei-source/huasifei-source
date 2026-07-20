@@ -33,6 +33,9 @@ mediatek_setup_interfaces()
 			"0:lan:4" "1:lan:3" "2:lan:2" "3:lan:1" "6u@eth0"
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" eth1
 		;;
+	huasifei,ws3006)
+		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" wan
+		;;
 	zbtlink,zbt-z8803be)
 		ucidef_set_interfaces_lan_wan "lan0 lan1 lan2" eth1
 		ucidef_set_interface "wan_sfp" device "eth2" protocol "none"
@@ -286,7 +289,8 @@ mediatek_setup_macs()
 		wanb_mac="$(macaddr_add "$hw_mac" 4)"
 		label_mac=$hw_mac
 		;;
-	huasifei,ws1698)
+	huasifei,ws1698|\
+	huasifei,ws3006)
 		hw_mac=$(mtd_get_mac_binary Factory 0x4)
 		lan_mac="$(macaddr_add "$hw_mac" 1)"
 		wan_mac="$(macaddr_add "$hw_mac" 2)"

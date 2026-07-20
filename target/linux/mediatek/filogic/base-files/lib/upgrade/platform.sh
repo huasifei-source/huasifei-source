@@ -238,6 +238,7 @@ platform_do_upgrade() {
 	huasifei,wh3000r-nand|\
 	huasifei,ws1610|\
 	huasifei,ws1698|\
+	huasifei,ws3006|\
 	jiorouter,ax6000-jidu6101)
 		CI_UBIPART="ubi"
 		nand_do_upgrade "$1"
