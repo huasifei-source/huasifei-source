@@ -129,17 +129,15 @@
 
 &mdio_bus {
 	/*
-	 * RTL8221B 2.5G PHY at address 1.
-	 * Original firmware log: Ext-phy gpio : 469
-	 * QWRT GPIO 469 maps to mainline &pio 39 (offset ~430).
-	 * VERIFY against schematic: search RTL8221B RST → MT7981 pin.
+	 * Reset is handled by gpio-hog on pio 39 in &pio node.
+	 * MT7531 and RTL8221B share the same reset line —
+	 * neither driver claims it; U-Boot handles the initial
+	 * reset pulse at power-on.
 	 */
+
 	rtl8221b_phy: ethernet-phy@1 {
 		compatible = "ethernet-phy-ieee802.3-c45";
 		reg = <1>;
-		reset-gpios = <&pio 39 GPIO_ACTIVE_LOW>;
-		reset-assert-us = <100000>;
-		reset-deassert-us = <221000>;
 		interrupt-parent = <&pio>;
 		interrupts = <38 IRQ_TYPE_LEVEL_LOW>;
 		realtek,aldps-enable;
@@ -149,14 +147,28 @@
 		compatible = "mediatek,mt7531";
 		reg = <31>;
 		/*
-		 * VERIFY against schematic: MT7531 RST may share pio 39
-		 * with RTL8221B or use a separate GPIO.
+		 * MT7531 shares physical reset line with RTL8221B on pio 39.
+		 * RTL8221B driver deasserts the reset — specifying reset-gpios
+		 * here would conflict (EBUSY) with the PHY driver.
 		 */
-		reset-gpios = <&pio 39 GPIO_ACTIVE_HIGH>;
 		interrupt-controller;
 		#interrupt-cells = <1>;
 		interrupt-parent = <&pio>;
-		interrupts = <38 IRQ_TYPE_LEVEL_HIGH>;
+		interrupts = <38 IRQ_TYPE_LEVEL_LOW>;
+
+		mdio {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			swphy0: phy@0 {
+				compatible = "ethernet-phy-id03a2.9441";
+				reg = <0>;
+			};
+
+			swphy1: phy@1 {
+				reg = <1>;
+			};
+		};
 
 		ports {
 			#address-cells = <1>;
@@ -165,6 +177,7 @@
 			port@0 {
 				reg = <0>;
 				label = "lan1";
+				phy-handle = <&swphy0>;
 				nvmem-cells = <&macaddr_factory_4 1>;
 				nvmem-cell-names = "mac-address";
 			};
@@ -172,6 +185,7 @@
 			port@1 {
 				reg = <1>;
 				label = "lan2";
+				phy-handle = <&swphy1>;
 				nvmem-cells = <&macaddr_factory_4 1>;
 				nvmem-cell-names = "mac-address";
 			};
@@ -270,6 +284,13 @@
 };
 
 &pio {
+	gbe_reset_hog {
+		gpio-hog;
+		gpios = <39 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "gbe-reset";
+	};
+
 	spi0_flash_pins: spi0-pins {
 		mux {
 			function = "spi";
