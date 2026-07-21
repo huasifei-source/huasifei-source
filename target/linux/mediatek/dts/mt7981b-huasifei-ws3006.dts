@@ -128,47 +128,20 @@
 };
 
 &mdio_bus {
-	/*
-	 * Reset is handled by gpio-hog on pio 39 in &pio node.
-	 * MT7531 and RTL8221B share the same reset line —
-	 * neither driver claims it; U-Boot handles the initial
-	 * reset pulse at power-on.
-	 */
-
 	rtl8221b_phy: ethernet-phy@1 {
 		compatible = "ethernet-phy-ieee802.3-c45";
 		reg = <1>;
-		interrupt-parent = <&pio>;
-		interrupts = <38 IRQ_TYPE_LEVEL_LOW>;
 		realtek,aldps-enable;
 	};
 
 	switch: switch@1f {
 		compatible = "mediatek,mt7531";
 		reg = <31>;
-		/*
-		 * MT7531 shares physical reset line with RTL8221B on pio 39.
-		 * RTL8221B driver deasserts the reset — specifying reset-gpios
-		 * here would conflict (EBUSY) with the PHY driver.
-		 */
+		reset-gpios = <&pio 39 GPIO_ACTIVE_HIGH>;
 		interrupt-controller;
 		#interrupt-cells = <1>;
 		interrupt-parent = <&pio>;
-		interrupts = <38 IRQ_TYPE_LEVEL_LOW>;
-
-		mdio {
-			#address-cells = <1>;
-			#size-cells = <0>;
-
-			swphy0: phy@0 {
-				compatible = "ethernet-phy-id03a2.9441";
-				reg = <0>;
-			};
-
-			swphy1: phy@1 {
-				reg = <1>;
-			};
-		};
+		interrupts = <38 IRQ_TYPE_LEVEL_HIGH>;
 
 		ports {
 			#address-cells = <1>;
@@ -177,7 +150,6 @@
 			port@0 {
 				reg = <0>;
 				label = "lan1";
-				phy-handle = <&swphy0>;
 				nvmem-cells = <&macaddr_factory_4 1>;
 				nvmem-cell-names = "mac-address";
 			};
@@ -185,7 +157,6 @@
 			port@1 {
 				reg = <1>;
 				label = "lan2";
-				phy-handle = <&swphy1>;
 				nvmem-cells = <&macaddr_factory_4 1>;
 				nvmem-cell-names = "mac-address";
 			};
@@ -284,13 +255,6 @@
 };
 
 &pio {
-	gbe_reset_hog {
-		gpio-hog;
-		gpios = <39 GPIO_ACTIVE_HIGH>;
-		output-high;
-		line-name = "gbe-reset";
-	};
-
 	spi0_flash_pins: spi0-pins {
 		mux {
 			function = "spi";
