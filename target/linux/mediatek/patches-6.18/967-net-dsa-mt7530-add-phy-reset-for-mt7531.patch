@@ -1,0 +1,37 @@
+From: WS3006 DTS fix
+Subject: [PATCH] net: dsa: mt7530: reset internal PHYs during mt7531_setup
+
+The MT7531 software reset sequence in mt7531_setup() omits
+SYS_CTRL_PHY_RST, unlike MT7530 and AN7583 which both include it.
+When no external reset-gpios is available (e.g. shared reset line
+designs), the internal PHYs remain in whatever state the bootloader
+left them, causing intermittent failures:
+
+- PHY probe validation returning wrong capabilities
+- "poll timeout" / "reset timeout" on FDB operations
+- "irq XX: nobody cared" from unhandled PHY interrupts
+- Link flaps during initial negotiation
+
+Add SYS_CTRL_PHY_RST to the internal software reset, matching the
+MT7530 and AN7583 behaviour. For boards with a dedicated reset-gpios,
+the PHY reset is redundant but harmless.
+
+This fixes the Huasifei WS3006 which shares a single GPIO reset line
+between the MT7531 switch and an RTL8221B external PHY — the switch
+cannot claim the GPIO without conflicting with the PHY driver.
+
+Signed-off-by: WS3006 DTS fix
+---
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -2687,7 +2687,9 @@ mt7531_setup(struct dsa_switch *ds)
+ 		mt7530_write(priv, MT753X_PMCR_P(i), MT7531_FORCE_MODE_LNK);
+
+ 	/* Reset the switch through internal reset */
+-	mt7530_write(priv, MT7530_SYS_CTRL, SYS_CTRL_SW_RST | SYS_CTRL_REG_RST);
++	mt7530_write(priv, MT7530_SYS_CTRL,
++		     SYS_CTRL_PHY_RST | SYS_CTRL_SW_RST |
++		     SYS_CTRL_REG_RST);
+
+ 	if (!priv->p5_sgmii) {
+ 		mt7531_pll_setup(priv);
