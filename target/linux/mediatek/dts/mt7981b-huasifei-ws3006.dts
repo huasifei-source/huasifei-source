@@ -35,19 +35,25 @@
 		modem1-reset {
 			gpio-export,name = "modem1_reset";
 			gpio-export,output = <1>;
-			gpios = <&pio 4 GPIO_ACTIVE_HIGH>;
+			gpios = <&pio 4 GPIO_ACTIVE_LOW>;
 		};
 
 		modem2-reset {
 			gpio-export,name = "modem2_reset";
 			gpio-export,output = <1>;
-			gpios = <&pio 12 GPIO_ACTIVE_HIGH>;
+			gpios = <&pio 12 GPIO_ACTIVE_LOW>;
 		};
 
 		modem-power {
 			gpio-export,name = "modem_power";
-			gpio-export,output = <0>;
+			gpio-export,output = <1>;
 			gpios = <&pio 5 GPIO_ACTIVE_HIGH>;
+		};
+
+		dual-sim {
+			gpio-export,name = "dual_sim";
+			gpio-export,output = <0>;
+			gpios = <&pio 13 GPIO_ACTIVE_LOW>;
 		};
 	};
 
