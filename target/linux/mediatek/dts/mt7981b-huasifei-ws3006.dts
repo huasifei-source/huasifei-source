@@ -34,13 +34,13 @@
 
 		modem1-reset {
 			gpio-export,name = "modem1_reset";
-			gpio-export,output = <1>;
+			gpio-export,output = <0>;
 			gpios = <&pio 4 GPIO_ACTIVE_LOW>;
 		};
 
 		modem2-reset {
 			gpio-export,name = "modem2_reset";
-			gpio-export,output = <1>;
+			gpio-export,output = <0>;
 			gpios = <&pio 12 GPIO_ACTIVE_LOW>;
 		};
 
