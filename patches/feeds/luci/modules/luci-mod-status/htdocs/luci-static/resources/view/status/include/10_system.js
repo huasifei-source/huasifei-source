@@ -34,6 +34,7 @@ return baseclass.extend({
 			L.resolveDefault(callSystemInfo(), {}),
 			L.resolveDefault(callLuciVersion(), { revision: _('unknown version'), branch: 'LuCI' }),
 			L.resolveDefault(callGetUnixtime(), 0),
+			L.resolveDefault(fs.read('/etc/openwrt_release'), ''),
 			uci.load('system')
 		]);
 	},
@@ -42,7 +43,8 @@ return baseclass.extend({
 		var boardinfo   = data[0],
 		    systeminfo  = data[1],
 		    luciversion = data[2],
-		    unixtime    = data[3];
+		    unixtime    = data[3],
+		    buildDate = ((data[4] || '').match(/DISTRIB_BUILD_DATE='([^']+)'/) || [])[1] || null;
 
 		luciversion = luciversion.branch + ' ' + luciversion.revision;
 
@@ -69,6 +71,7 @@ return baseclass.extend({
 			_('Target Platform'),  (L.isObject(boardinfo.release) ? boardinfo.release.target : ''),
 			_('Firmware Version'), (L.isObject(boardinfo.release) ? boardinfo.release.description + ' / ' : '') + (luciversion || ''),
 			_('Kernel Version'),   boardinfo.kernel,
+			_('Build Time'),       buildDate,
 			_('Local Time'),       datestr,
 			_('Uptime'),           systeminfo.uptime ? '%t'.format(systeminfo.uptime) : null,
 			_('Load Average'),     Array.isArray(systeminfo.load) ? '%.2f, %.2f, %.2f'.format(

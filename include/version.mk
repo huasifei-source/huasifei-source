@@ -93,6 +93,10 @@ $(subst &,\&,$(subst $(comma),\$(comma),$(subst ','\'',$(subst \,\\,$(1)))))
 endef
 #'
 
+VERSION_BUILD_DATE:=$(shell TZ=Asia/Shanghai date +%Y-%m-%d 2>/dev/null || echo unknown)
+VERSION_BUILD_TIME:=$(shell TZ=Asia/Shanghai date +%H:%M 2>/dev/null || echo 00:00)
+VERSION_BUILD_DATETIME:=$(VERSION_BUILD_DATE) $(VERSION_BUILD_TIME)
+
 VERSION_SED_SCRIPT:=$(SED) 's,%U,$(call sed_escape,$(VERSION_REPO)),g' \
 	-e 's,%V,$(call sed_escape,$(VERSION_NUMBER)),g' \
 	-e 's,%v,\L$(call sed_escape,$(subst $(space),_,$(VERSION_NUMBER))),g' \
@@ -113,4 +117,4 @@ VERSION_SED_SCRIPT:=$(SED) 's,%U,$(call sed_escape,$(VERSION_REPO)),g' \
 	-e 's,%f,$(call sed_escape,$(VERSION_FIRMWARE_URL)),g' \
 	-e 's,%P,$(call sed_escape,$(VERSION_PRODUCT)),g' \
 	-e 's,%h,$(call sed_escape,$(VERSION_HWREV)),g' \
-	-e 's,%B,$(call sed_escape,$(SOURCE_DATE_EPOCH)),g'
+	-e 's,%B,$(VERSION_BUILD_DATETIME),g'

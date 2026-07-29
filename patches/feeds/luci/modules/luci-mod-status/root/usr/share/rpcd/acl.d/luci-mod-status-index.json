@@ -6,6 +6,7 @@
 				"/etc/board.json": [ "read" ],
 				"/proc/sys/net/netfilter/nf_conntrack_count": [ "read" ],
 				"/proc/sys/net/netfilter/nf_conntrack_max": [ "read" ],
+				"/etc/openwrt_release": [ "read" ],
 				"/www/luci-static/resources/view/status/include": [ "list" ]
 			},
 			"ubus": {
