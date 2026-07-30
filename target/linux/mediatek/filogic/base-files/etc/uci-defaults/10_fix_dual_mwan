@@ -71,6 +71,47 @@ case "$(board_name)" in
 		uci commit network
 		uci commit mwan3
 		;;
+	huasifei,ws3006)
+        # --- Network: set wan metric (must be < modem lowest metric=5) ---
+        uci set network.wan.metric='4'
+
+        # --- mwan3: delete default unused interfaces ---
+		uci -q delete mwan3.wan
+		uci -q delete mwan3.wan6
+        uci -q delete mwan3.wanb
+        uci -q delete mwan3.wanb6
+
+        # --- mwan3: delete default member sections ---
+        uci -q delete mwan3.wan_m1_w3
+        uci -q delete mwan3.wan_m2_w3
+        uci -q delete mwan3.wanb_m1_w2
+        uci -q delete mwan3.wanb_m1_w3
+        uci -q delete mwan3.wanb_m2_w2
+        uci -q delete mwan3.wan6_m1_w3
+        uci -q delete mwan3.wan6_m2_w3
+        uci -q delete mwan3.wanb6_m1_w2
+        uci -q delete mwan3.wanb6_m1_w3
+        uci -q delete mwan3.wanb6_m2_w2
+
+        # --- mwan3: delete default policies ---
+        uci -q delete mwan3.wan_only
+        uci -q delete mwan3.wanb_only
+        uci -q delete mwan3.balanced
+        uci -q delete mwan3.wan_wanb
+        uci -q delete mwan3.wanb_wan
+
+        # --- mwan3: delete default rules (conflict with qmodem ipv4_rule) ---
+        uci -q delete mwan3.https
+        uci -q delete mwan3.default_rule_v4
+        uci -q delete mwan3.default_rule_v6
+
+		# --- mwan3: default mwan3 stop
+		uci del qmodem_mwan.global.enable_mwan
+		uci set qmodem_mwan.global.sticky_mode='0'
+
+        uci commit network
+        uci commit mwan3
+        ;;
 esac
 
 exit 0
