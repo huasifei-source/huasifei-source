@@ -1938,7 +1938,7 @@ define Device/huasifei_ws3006
 	kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
   luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
   luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
-  atenl kmod-tun luci-proto-openvpn
+  atenl kmod-tun luci-proto-openvpn luci-app-qmodem-mwan 
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
   PAGESIZE := 2048

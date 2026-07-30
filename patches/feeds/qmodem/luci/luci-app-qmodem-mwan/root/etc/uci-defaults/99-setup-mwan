@@ -25,12 +25,12 @@ modem_settings()
 		uci commit qmodem_mwan
 		;;
 	huasifei,ws3006)
-		add_ipv4_config "5g0"  10 1
-		add_ipv4_config "5g1" 10 1
-		add_ipv4_config "4g0" 10 1
-		add_ipv4_config "4g1" 10 1
-		add_ipv4_config "4g2" 10 1
-		add_ipv4_config "4g3" 10 1
+		add_ipv4_config "5g0" 10 230
+		add_ipv4_config "5g1" 10 230
+		add_ipv4_config "4g0" 20 1
+		add_ipv4_config "4g1" 20 1
+		add_ipv4_config "4g2" 20 1
+		add_ipv4_config "4g3" 20 1
 		uci commit qmodem_mwan
 		;;
 	
