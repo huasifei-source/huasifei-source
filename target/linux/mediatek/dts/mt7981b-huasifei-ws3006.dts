@@ -83,22 +83,22 @@
 
 		led-2 {
 			label = "green:5g1";
-			gpios = <&pio 11 GPIO_ACTIVE_LOW>;
+			gpios = <&pio 6 GPIO_ACTIVE_LOW>;
 		};
 
 		led-3 {
 			label = "green:5g2";
-			gpios = <&pio 9 GPIO_ACTIVE_LOW>;
+			gpios = <&pio 7 GPIO_ACTIVE_LOW>;
 		};
 
 		led-4 {
 			label = "green:sim1";
-			gpios = <&pio 6 GPIO_ACTIVE_LOW>;
+			gpios = <&pio 11 GPIO_ACTIVE_LOW>;
 		};
 
 		led-5 {
 			label = "green:sim2";
-			gpios = <&pio 7 GPIO_ACTIVE_LOW>;
+			gpios = <&pio 9 GPIO_ACTIVE_LOW>;
 		};
 	};
 };
