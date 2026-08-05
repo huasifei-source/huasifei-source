@@ -75,6 +75,31 @@ if echo "$MODEL" | grep -q "1698"; then
     done
 
 # ============================================================
+# WS3009 RGB 三色灯：开机绿灯，联网后绿灯+蓝灯同亮
+# ============================================================
+elif echo "$MODEL" | grep -q "WS3009"; then
+    RED_LED="red:status"
+    GREEN_LED="green:running"
+    BLUE_LED="blue:network"
+
+    # 开机完成：红灯灭，绿灯亮
+    led_off "$RED_LED" 2>/dev/null
+    led_on "$GREEN_LED" 2>/dev/null
+
+    while true; do
+        if ping -c 1 -W 3 119.29.29.29 >/dev/null 2>&1; then
+            # 已联网：绿灯 + 蓝灯同亮
+            led_on "$GREEN_LED" 2>/dev/null
+            led_on "$BLUE_LED" 2>/dev/null
+        else
+            # 未联网：仅绿灯亮
+            led_on "$GREEN_LED" 2>/dev/null
+            led_off "$BLUE_LED" 2>/dev/null
+        fi
+        sleep 10
+    done
+
+# ============================================================
 # 3000 机型：原有逻辑（红蓝灯 ping 闪烁）
 # ============================================================
 else
