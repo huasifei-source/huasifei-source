@@ -1957,6 +1957,34 @@ endif
 endef
 TARGET_DEVICES += huasifei_ws3006
 
+define Device/huasifei_ws3009
+  DEVICE_VENDOR := Huasifei
+  DEVICE_MODEL := WS3009
+  DEVICE_DTS := mt7981b-huasifei-ws3009
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
+	kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
+  luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
+  luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
+  atenl kmod-tun luci-proto-openvpn luci-app-qmodem-mwan
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  IMAGE_SIZE := 229376k
+  KERNEL_IN_UBI := 1
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  ARTIFACTS := preloader.bin
+  ARTIFACT/preloader.bin := mt7981-bl2 spim-nand-ddr4
+  # FIP (bl31+uboot) requires board defconfig — use prebuilt for now
+  # ARTIFACTS += bl31-uboot.fip
+  # ARTIFACT/bl31-uboot.fip := mt7981-bl31-uboot huasifei_ws3009
+ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
+  ARTIFACTS += initramfs-factory.ubi
+  ARTIFACT/initramfs-factory.ubi := append-image-stage initramfs-kernel.bin | ubinize-kernel
+endif
+endef
+TARGET_DEVICES += huasifei_ws3009
+
 define Device/imou_hx21
   DEVICE_VENDOR := Imou
   DEVICE_MODEL := HX21
