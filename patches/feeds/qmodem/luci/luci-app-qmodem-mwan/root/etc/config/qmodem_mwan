@@ -8,4 +8,4 @@ config ipv4
 	option member_weight '1'
 
 config global 'global'
-        option enable_mwan '1'
+        option enable_mwan '0'
