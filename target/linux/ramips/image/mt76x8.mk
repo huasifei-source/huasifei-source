@@ -845,3 +845,13 @@ define Device/huasifei_wh1200
 	
 endef
 TARGET_DEVICES += huasifei_wh1200
+
+define Device/huasifei_shf283
+  IMAGE_SIZE := 16064k
+  DEVICE_VENDOR := Huasifei
+  DEVICE_MODEL := SHF283
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci kmod-usb-serial kmod-usb-net-qmi-wwan uqmi kmod-usb-serial-option \
+  luci-app-qmodem luci-light kmod-ipt-offload kmod-nf-flow iptables-mod-offload atenl
+  SUPPORTED_DEVICES += huasifei,shf283
+endef
+TARGET_DEVICES += huasifei_shf283

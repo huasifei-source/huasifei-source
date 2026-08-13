@@ -44,6 +44,10 @@ hiwifi,hc5661a|\
 hiwifi,hc5761a)
 	ucidef_set_led_switch "internet" "internet" "blue:internet" "switch0" "0x10"
 	;;
+huasifei,shf283)
+	ucidef_set_led_netdev "lte" "LTE" "green:lte" "wwan0"
+	ucidef_set_led_wlan "wlan" "WLAN" "green:wlan" "phy0tpt"
+	;;
 mediatek,linkit-smart-7688)
 	ucidef_set_led_wlan "wifi" "wifi" "orange:wifi" "phy0tpt"
 	;;
