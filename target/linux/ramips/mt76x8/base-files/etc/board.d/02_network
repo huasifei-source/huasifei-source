@@ -75,6 +75,10 @@ ramips_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"2:lan" "3:lan" "4:lan" "1:wan" "6@eth0"
 		;;
+	huasifei,shf285)
+		ucidef_add_switch "switch0" \
+			"1:lan" "2:lan" "3:lan" "4:lan" "0:wan" "6@eth0"
+		;;
 	hilink,hlk-7628n|\
 	hilink,hlk-7688a|\
 	hiwifi,hc5861b|\
@@ -207,7 +211,8 @@ ramips_setup_macs()
 		[ -n "$lan_mac" ] || lan_mac=$(cat /sys/class/net/eth0/address)
 		wan_mac=$(macaddr_add "$lan_mac" 1)
 		;;
-	huasifei,shf283)
+	huasifei,shf283|\
+	huasifei,shf285)
 		label_mac=$(mtd_get_mac_binary factory 0x4)
 		lan_mac=$(macaddr_add "$label_mac" 1)
 		wan_mac=$(macaddr_add "$label_mac" 2)

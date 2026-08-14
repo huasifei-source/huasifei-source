@@ -855,3 +855,13 @@ define Device/huasifei_shf283
   SUPPORTED_DEVICES += huasifei,shf283
 endef
 TARGET_DEVICES += huasifei_shf283
+
+define Device/huasifei_shf285
+  IMAGE_SIZE := 16064k
+  DEVICE_VENDOR := Huasifei
+  DEVICE_MODEL := SHF285
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci kmod-usb-serial kmod-usb-net-qmi-wwan uqmi kmod-usb-serial-option \
+  luci-app-qmodem luci-light kmod-ipt-offload kmod-nf-flow iptables-mod-offload atenl
+  SUPPORTED_DEVICES += huasifei,shf285
+endef
+TARGET_DEVICES += huasifei_shf285
