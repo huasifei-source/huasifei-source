@@ -209,7 +209,8 @@ ramips_setup_macs()
 		;;
 	huasifei,shf283)
 		label_mac=$(mtd_get_mac_binary factory 0x4)
-		wan_mac=$(macaddr_add "$label_mac" 1)
+		lan_mac=$(macaddr_add "$label_mac" 1)
+		wan_mac=$(macaddr_add "$label_mac" 2)
 		;;
 	iptime,a3|\
 	iptime,a604m|\
