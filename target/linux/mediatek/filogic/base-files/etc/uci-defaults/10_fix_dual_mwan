@@ -13,6 +13,7 @@ case "$(board_name)" in
 		for z in $(uci show firewall | grep "=zone$" | cut -d= -f1); do
 			if [ "$(uci get ${z}.name)" = "wan" ]; then
 				uci add_list ${z}.network='wanb'
+				uci add_list ${z}.network='wanb6'
 			fi
 		done
 
