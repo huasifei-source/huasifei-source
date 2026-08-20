@@ -202,6 +202,20 @@
 			bias-pull-down = <MTK_PUPD_SET_R1R0_11>;
 		};
 	};
+
+	gbe_led0_pins: gbe-led0-pins {
+		mux {
+			function = "led";
+			groups = "gbe_led0";
+		};
+	};
+
+	gbe_led1_pins: gbe-led1-pins {
+		mux {
+			function = "led";
+			groups = "gbe_led1";
+		};
+	};
 };
 
 &switch {
@@ -264,5 +278,22 @@
 };
 
 &xhci {
+	status = "okay";
+};
+
+&int_gbe_phy {
+	pinctrl-names = "default";
+	pinctrl-0 = <&gbe_led0_pins>, <&gbe_led1_pins>;
+};
+
+&int_gbe_phy_led0 {
+	function = LED_FUNCTION_LAN;
+	color = <LED_COLOR_ID_GREEN>;
+	status = "okay";
+};
+
+&int_gbe_phy_led1 {
+	function = LED_FUNCTION_LAN;
+	color = <LED_COLOR_ID_GREEN>;
 	status = "okay";
 };
