@@ -23,7 +23,8 @@ mediatek_setup_interfaces()
 	zbtlink,zbt-z8103ax-c)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" eth1
 		;;
-	huasifei,ws1610)
+	huasifei,ws1610|\
+	vanconnect,dual-wan)
 		ucidef_set_interfaces_lan_wan "lan" "wan"
 		ucidef_set_interface "wanb" device "wan2" protocol "dhcp" metric "2"
 		ucidef_set_interface "wanb6" device "wan2" protocol "dhcpv6"
@@ -285,7 +286,8 @@ mediatek_setup_macs()
 	bananapi,bpi-r3-mini|\
 	bananapi,bpi-r4|\
 	bananapi,bpi-r4-lite|\
-	huasifei,ws1610)
+	huasifei,ws1610|\
+	vanconnect,dual-wan)
 		hw_mac=$(mtd_get_mac_binary Factory 0x4)
 		lan_mac="$(macaddr_add "$hw_mac" 2)"
 		wan_mac="$(macaddr_add "$hw_mac" 3)"

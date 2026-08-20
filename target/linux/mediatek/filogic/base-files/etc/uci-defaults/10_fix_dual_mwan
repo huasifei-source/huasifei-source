@@ -7,7 +7,8 @@
 . /lib/functions.sh
 
 case "$(board_name)" in
-	huasifei,ws1610)
+	huasifei,ws1610|\
+	vanconnect,dual-wan)
 		# --- Firewall: add wanb to WAN zone ---
 		for z in $(uci show firewall | grep "=zone$" | cut -d= -f1); do
 			if [ "$(uci get ${z}.name)" = "wan" ]; then

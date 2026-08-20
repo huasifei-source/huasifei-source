@@ -240,7 +240,8 @@ platform_do_upgrade() {
 	huasifei,ws1698|\
 	huasifei,ws3006|\
 	huasifei,ws3009|\
-	jiorouter,ax6000-jidu6101)
+	jiorouter,ax6000-jidu6101|\
+	vanconnect,dual-wan)
 		CI_UBIPART="ubi"
 		nand_do_upgrade "$1"
 		;;
