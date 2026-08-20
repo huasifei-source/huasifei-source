@@ -27,7 +27,6 @@ mediatek_setup_interfaces()
 	vanconnect,dual-wan)
 		ucidef_set_interfaces_lan_wan "lan" "wan"
 		ucidef_set_interface "wanb" device "wan2" protocol "dhcp" metric "2"
-		ucidef_set_interface "wanb6" device "wan2" protocol "dhcpv6"
 		;;
 	huasifei,ws1698)
 		ucidef_add_switch "switch0" \
