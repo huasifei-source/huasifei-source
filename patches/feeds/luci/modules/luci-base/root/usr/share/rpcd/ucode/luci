@@ -731,7 +731,7 @@ const methods = {
 			let board = fd ? json(fd) : {};
 			let ports = [];
 
-			for (let k in [ 'lan', 'wan' ]) {
+			for (let k in [ 'lan', 'wan' , 'wanb' ]) {
 				if (!board?.network?.[k])
 					continue;
 
