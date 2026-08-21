@@ -1922,7 +1922,7 @@ define Device/vanconnect_dual-wan
 	kmod-usb3 f2fsck mkf2fs luci-light \
 	luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
 	luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
-	atenl kmod-tun luci-proto-openvpn
+	atenl kmod-tun luci-proto-openvpn luci-app-sqm
   ARTIFACTS := preloader.bin bl31-uboot.fip
   ARTIFACT/preloader.bin := mt7981-bl2 spim-nand-ddr4
   ARTIFACT/bl31-uboot.fip := mt7981-bl31-uboot huasifei_ws1610
