@@ -1,0 +1,32 @@
+#!/bin/sh
+# VanConnect Dual-WAN 客户化默认配置
+# - Timezone: Australia/Sydney
+# - LAN IP: 10.1.1.1/24
+# - WiFi: 双频 WPA2-PSK (CCMP)，密码 password
+
+. /lib/functions.sh
+
+case "$(board_name)" in
+	vanconnect,dual-wan)
+		# --- 1. 时区 Australia/Sydney ---
+		uci set system.@system[0].zonename='Australia/Sydney'
+		uci set system.@system[0].timezone='AEST-10AEDT,M10.1.0/2,M4.1.0/3'
+
+		# --- 2. LAN IP 10.1.1.1/24 ---
+		uci set network.lan.ipaddr='10.1.1.1'
+		uci set network.lan.netmask='255.255.255.0'
+
+		# --- 3. wifi-iface 统一 WPA2-PSK + CCMP ,密码为password---
+		uci set wireless.radio0.cell_density='0'
+		uci set wireless.default_radio0.encryption='psk2+ccmp'
+		uci set wireless.default_radio0.key='password'
+
+		uci set wireless.radio1.cell_density='0'
+		uci set wireless.default_radio1.encryption='psk2+ccmp'
+		uci set wireless.default_radio1.key='password'
+
+		uci commit
+		;;
+esac
+
+exit 0
