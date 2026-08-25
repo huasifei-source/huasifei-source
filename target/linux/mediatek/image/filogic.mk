@@ -1986,7 +1986,9 @@ TARGET_DEVICES += huasifei_ws3006
 define Device/huasifei_trs_router_miniups
   DEVICE_VENDOR := Huasifei
   DEVICE_MODEL := TRS_Router_MiniUPS
-  DEVICE_DTS := mt7981b-huasifei-trs-router-miniups  
+  DEVICE_DTS := mt7981b-huasifei-trs-router-miniups
+  SUPPORTED_DEVICES := huasifei,trs-router-miniups
+  BOARD_NAME := huasifei_trs-router-miniups
   DEVICE_DTS_DIR := ../dts
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
