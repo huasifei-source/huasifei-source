@@ -39,6 +39,9 @@ mediatek_setup_interfaces()
 	huasifei,ws3009)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" wan
 		;;
+	huasifei,trs-router-miniups)
+		ucidef_set_interfaces_lan_wan "lan1 lan2" wan
+		;;
 	zbtlink,zbt-z8803be)
 		ucidef_set_interfaces_lan_wan "lan0 lan1 lan2" eth1
 		ucidef_set_interface "wan_sfp" device "eth2" protocol "none"
@@ -295,7 +298,8 @@ mediatek_setup_macs()
 		;;
 	huasifei,ws1698|\
 	huasifei,ws3006|\
-	huasifei,ws3009)
+	huasifei,ws3009|\
+	huasifei,trs-router-miniups)
 		hw_mac=$(mtd_get_mac_binary Factory 0x4)
 		lan_mac="$(macaddr_add "$hw_mac" 1)"
 		wan_mac="$(macaddr_add "$hw_mac" 2)"

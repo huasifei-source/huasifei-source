@@ -149,6 +149,9 @@ vanconnect,dual-wan)
 huasifei,ws3006)
 	ucidef_set_led_netdev "wifi" "WiFi" "green:wifi" "phy0-ap0" "link tx rx"
 	;;
+	huasifei,trs-router-miniups)
+		ucidef_set_led_default "sys" "System" "green:sys" "1"
+		;;
 	huasifei,ws3009)
 		ucidef_set_led_netdev "5g1" "5G1" "green:5g1" "wwan0" "link tx rx"
 		ucidef_set_led_netdev "5g2" "5G2" "green:5g2" "wwan1" "link tx rx"
