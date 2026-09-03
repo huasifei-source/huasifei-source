@@ -33,6 +33,10 @@ modem_settings()
 		add_ipv4_config "4g3" 20 1
 		uci commit qmodem_mwan
 		;;
+	huasifei,trs-router-miniups)
+		add_ipv4_config "1_1_2" 2 1
+		uci commit qmodem_mwan
+		;;
 	
 	esac
 }
