@@ -73,7 +73,8 @@ case "$(board_name)" in
 		uci commit network
 		uci commit mwan3
 		;;
-	huasifei,ws3006)
+	huasifei,ws3006|\
+	huasifei,trs-router-miniups)
         # --- Network: set wan metric (must be < modem lowest metric=5) ---
         uci set network.wan.metric='4'
 
