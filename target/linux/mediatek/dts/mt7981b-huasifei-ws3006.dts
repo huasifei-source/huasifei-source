@@ -283,6 +283,15 @@
 			bias-pull-down = <MTK_PUPD_SET_R1R0_11>;
 		};
 	};
+
+	/* lan3 LINK 灯 = GPIO8 复用为内置 GbE PHY 的 GBE_LED0
+	 * (led1=GPIO13 是 SIM_SW, 禁用不动) */
+	gbe_led0_pins: gbe-led0-pins {
+		mux {
+			function = "led";
+			groups = "gbe_led0";
+		};
+	};
 };
 
 &uart0 {
@@ -310,5 +319,16 @@
 };
 
 &xhci {
+	status = "okay";
+};
+
+&int_gbe_phy {
+	pinctrl-names = "default";
+	pinctrl-0 = <&gbe_led0_pins>;
+};
+
+&int_gbe_phy_led0 {
+	function = LED_FUNCTION_LAN;
+	color = <LED_COLOR_ID_GREEN>;
 	status = "okay";
 };
