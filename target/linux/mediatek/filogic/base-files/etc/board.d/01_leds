@@ -148,15 +148,13 @@ vanconnect,dual-wan)
 	;;
 huasifei,ws3006)
 	ucidef_set_led_netdev "wifi" "WiFi" "green:wifi" "phy0-ap0" "link tx rx"
+	ucidef_set_led_netdev "lan3" "LAN3" "mdio-bus:00:green:lan" "lan3" "link tx rx"
 	;;
-	huasifei,trs-router-miniups)
-		ucidef_set_led_default "sys" "System" "green:sys" "1"
-		;;
-	huasifei,ws3009)
-		ucidef_set_led_netdev "5g1" "5G1" "green:5g1" "wwan0" "link tx rx"
-		ucidef_set_led_netdev "5g2" "5G2" "green:5g2" "wwan1" "link tx rx"
-		ucidef_set_led_netdev "5g3" "5G3" "green:5g3" "wwan2" "link tx rx"
-		;;
+huasifei,ws3009)
+	ucidef_set_led_netdev "5g1" "5G1" "green:5g1" "wwan0" "link tx rx"
+	ucidef_set_led_netdev "5g2" "5G2" "green:5g2" "wwan1" "link tx rx"
+	ucidef_set_led_netdev "5g3" "5G3" "green:5g3" "wwan2" "link tx rx"
+	;;
 iptime,ax3000q)
 	ucidef_set_led_netdev "wan" "WAN" "amber:wan" "wan" "link tx rx"
 	;;
