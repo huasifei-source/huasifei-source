@@ -98,6 +98,30 @@ elif echo "$MODEL" | grep -q "WS3009"; then
         fi
         sleep 10
     done
+# ============================================================
+# TRS_Router_Mini RGB 开机正常亮绿灯,网络中断亮红灯
+# ============================================================
+elif echo "$MODEL" | grep -q "TRS_Router_MiniUPS"; then
+    RED_LED="red:status"
+    GREEN_LED="green:sys"
+    
+
+    # 开机完成：都灭
+    led_off "$RED_LED" 2>/dev/null
+    led_off "$GREEN_LED" 2>/dev/null
+
+    while true; do
+        if ping -c 1 -W 3 119.29.29.29 >/dev/null 2>&1; then
+            # 已联网：绿灯常亮
+            led_on "$GREEN_LED" 2>/dev/null
+            led_off "$RED_LED" 2>/dev/null
+        else
+            # 未联网：红灯常亮
+            led_off "$GREEN_LED" 2>/dev/null
+            led_on "$RED_LED" 2>/dev/null
+        fi
+        sleep 10
+    done 
 
 # ============================================================
 # 3000 机型：原有逻辑（红蓝灯 ping 闪烁）
