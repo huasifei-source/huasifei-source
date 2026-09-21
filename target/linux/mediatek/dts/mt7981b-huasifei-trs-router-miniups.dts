@@ -60,13 +60,12 @@
 
 		led_sys: led-0 {
 			label = "green:sys";
-			gpios = <&pio 10 GPIO_ACTIVE_LOW>;
+			gpios = <&pio 10 GPIO_ACTIVE_HIGH>;
 		};
 
 		led-1 {
 			label = "red:status";
-			gpios = <&pio 9 GPIO_ACTIVE_LOW>;
-			default-state = "off";
+			gpios = <&pio 9 GPIO_ACTIVE_HIGH>;
 		};
 	};
 
