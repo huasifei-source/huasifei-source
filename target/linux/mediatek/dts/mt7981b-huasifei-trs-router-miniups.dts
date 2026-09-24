@@ -43,6 +43,16 @@
 			gpio-export,output = <0>;
 			gpios = <&pio 8 GPIO_ACTIVE_LOW>;
 		};
+
+		/* BQ25792 CE, active low. Note: gpio-export "output" is the RAW
+		 * physical level on this kernel, while sysfs value is logical
+		 * (ACTIVE_LOW inverted). Boot default: charging ON = pin LOW,
+		 * so output=<0>; sysfs then reads 1 = charging, 0 = disabled. */
+		battery-chg-enable {
+			gpio-export,name = "battery_charge_enable";
+			gpio-export,output = <1>;
+			gpios = <&pio 7 GPIO_ACTIVE_LOW>;
+		};
 	};
 
 	gpio-keys {
@@ -67,6 +77,17 @@
 			label = "red:status";
 			gpios = <&pio 9 GPIO_ACTIVE_HIGH>;
 		};
+	};
+
+	/* 3S 18650 pack. 6.18 power_supply_get_battery_info() only accepts the
+	 * phandle form; a child node named "monitored-battery" is ignored. */
+	bat: battery {
+		compatible = "simple-battery";
+		constant-charge-current-max-microamp = <1000000>;
+		constant-charge-voltage-max-microvolt = <12600000>;
+		precharge-current-microamp = <120000>;
+		charge-term-current-microamp = <100000>; /* EVE 35V spec: 0.02C cut-off, 40mA reg step */
+		voltage-min-design-microvolt = <7500000>; /* EVE 35V: 2.5V/cell discharge cut-off */
 	};
 
 	usb_vbus: regulator-usb {
@@ -251,6 +272,29 @@
 			drive-strength = <MTK_DRIVE_8mA>;
 			bias-pull-down = <MTK_PUPD_SET_R1R0_11>;
 		};
+	};
+
+	i2c_pins: i2c-pins {
+		mux {
+			function = "i2c";
+			groups = "i2c0_1";
+		};
+	};
+
+};
+
+&i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c_pins>;
+	status = "okay";
+
+	bq25792: charger@6b {
+		compatible = "ti,bq25792";
+		reg = <0x6b>;
+		monitored-battery = <&bat>;
+		/* 2A input limit: 9V PD = 18W, enough to sustain 1A fast charge.
+		 * Chip max 3.3A; VINDPM backs off if the adapter sags. */
+		input-current-limit-microamp = <2000000>;
 	};
 };
 

@@ -2000,7 +2000,7 @@ define Device/huasifei_trs_router_miniups
 	kmod-usb2 kmod-usb3 f2fsck mkf2fs luci-light luci-app-samba4 \
 	kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
 	kmod-usb-net-qmi-wwan kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
-	luci-app-qmodem luci-app-qmodem-mwan atenl
+	luci-app-qmodem luci-app-qmodem-mwan atenl kmod-bq25792_charger i2c-tools
   ARTIFACTS := preloader.bin bl31-uboot.fip
   ARTIFACT/preloader.bin := mt7981-bl2 spim-nand-ddr3
   ARTIFACT/bl31-uboot.fip := mt7981-bl31-uboot huasifei_trs_router_miniups
