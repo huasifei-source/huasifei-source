@@ -50,7 +50,7 @@
 		 * so output=<0>; sysfs then reads 1 = charging, 0 = disabled. */
 		battery-chg-enable {
 			gpio-export,name = "battery_charge_enable";
-			gpio-export,output = <1>;
+			gpio-export,output = <0>;
 			gpios = <&pio 7 GPIO_ACTIVE_LOW>;
 		};
 	};
