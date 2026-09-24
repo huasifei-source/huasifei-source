@@ -292,9 +292,6 @@
 		compatible = "ti,bq25792";
 		reg = <0x6b>;
 		monitored-battery = <&bat>;
-		/* No NTC on the pack: ignore TS pin (REG18 TS_IGNORE) instead
-		 * of inhibiting charge as "cold". */
-		ti,ts-ignore;
 		/* 2A input limit: 9V PD = 18W, enough to sustain 1A fast charge.
 		 * Chip max 3.3A; VINDPM backs off if the adapter sags. */
 		input-current-limit-microamp = <2000000>;

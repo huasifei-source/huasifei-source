@@ -1,9 +1,13 @@
 # TI BQ25790/BQ25792 I2C battery charger driver (out-of-tree kernel package)
 #
-# Source: TI's never-mainlined bq25790_charger.c (Seeed copy,
-# github.com/Seeed-Studio/seeed-linux-dtoverlays), with "ti,bq25792"
-# added to the match tables. Board: huasifei_trs_router_miniups
-# (3S 18650 pack, I2C 0x6B, charge-enable CE on GPIO7 active-low via gpio-hog).
+# Source: mainline bq257xx MFD split (torvalds/linux master, merged 6.19):
+#   drivers/mfd/bq257xx.c                 -> src/bq257xx_mfd.c
+#   include/linux/mfd/bq257xx.h           -> src/bq257xx.h
+#   drivers/power/supply/bq257xx_charger.c -> src/bq257xx_charger.c
+# Local changes: include path only (<linux/mfd/bq257xx.h> -> "bq257xx.h").
+# Requires CONFIG_MFD_CORE=y (target/linux/generic/config-6.18).
+# Board: huasifei_trs_router_miniups (3S 18650 pack, I2C 0x6B,
+# charge-enable CE on GPIO7 active-low via gpio-export).
 
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
@@ -15,15 +19,17 @@ PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 define KernelPackage/bq25792_charger
   SUBMENU:=Other modules
-  TITLE:=TI BQ25790/BQ25792 I2C battery charger driver
+  TITLE:=TI BQ25792 I2C battery charger driver (mainline bq257xx MFD)
   DEPENDS:=@TARGET_mediatek +kmod-i2c-core
-  FILES:=$(PKG_BUILD_DIR)/bq25790_charger.ko
-  AUTOLOAD:=$(call AutoProbe,bq25790_charger)
+  FILES:=$(PKG_BUILD_DIR)/bq257xx_mfd.ko $(PKG_BUILD_DIR)/bq257xx_charger.ko
+  AUTOLOAD:=$(call AutoProbe,bq257xx_mfd bq257xx_charger)
 endef
 
 define KernelPackage/bq25792_charger/description
-  Linux power_supply class driver for the TI BQ25790/BQ25792 buck-boost
-  charger. Reports battery voltage/current/status via /sys/class/power_supply.
+  Mainline bq257xx MFD + charger driver for the TI BQ25792 buck-boost
+  charger. Two modules: bq257xx-mfd (I2C core, spawns bq257xx-charger
+  platform device) and bq257xx_charger (power_supply class driver).
+  Reports battery voltage/current/status via /sys/class/power_supply.
   IRQ optional (works without the INT line, polled reads).
 endef
 
