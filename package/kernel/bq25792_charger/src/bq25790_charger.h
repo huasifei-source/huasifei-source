@@ -100,6 +100,9 @@
 #define BQ25790_UNQUAL_ADAPT	BIT(4)
 #define BQ25790_DIRECT_PWR	(BIT(4) | BIT(2) | BIT(1))
 
+/* NTC Control 1 (REG18) */
+#define BQ25790_TS_IGNORE	BIT(0)
+
 /* Charger Status 4 */
 #define BQ25790_TEMP_HOT	BIT(0)
 #define BQ25790_TEMP_WARM	BIT(1)

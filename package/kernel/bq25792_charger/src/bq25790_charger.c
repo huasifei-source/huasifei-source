@@ -65,6 +65,7 @@ struct bq25790_device {
 	struct bq25790_init_data init_data;
 	struct bq25790_state state;
 	u32 watchdog_timer;
+	bool ts_ignore;
 };
 
 static struct reg_default bq25790_reg_defs[] = {
@@ -1004,6 +1005,10 @@ static int bq25790_hw_init(struct bq25790_device *bq)
 	ret = regmap_update_bits(bq->regmap, BQ25790_CHRG_CTRL_1,
 				 BQ25790_WATCHDOG_MASK, wd_reg_val);
 
+	if (bq->ts_ignore)
+		regmap_update_bits(bq->regmap, BQ25790_NTC_CTRL_1,
+				   BQ25790_TS_IGNORE, BQ25790_TS_IGNORE);
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 0)
 	ret = power_supply_get_battery_info(bq->charger, bat_info);
 #else
@@ -1100,6 +1105,8 @@ static int bq25790_parse_dt(struct bq25790_device *bq)
 	if (bq->init_data.ilim > BQ25790_IINDPM_I_MAX_uA ||
 	    bq->init_data.ilim < BQ25790_IINDPM_I_MIN_uA)
 		return -EINVAL;
+
+	bq->ts_ignore = device_property_read_bool(bq->dev, "ti,ts-ignore");
 
 	return 0;
 }
