@@ -1,0 +1,43 @@
+#!/bin/sh /etc/rc.common
+# Battery-gated driver load (hardware-agreed flow, 2026-09-29):
+#
+# The pack is not hot-pluggable, so battery presence is fixed at boot.
+#   No battery : CE high (charge off), driver never loads -> TS stays
+#                "cold", charging inhibited by the chip itself.
+#   Battery    : CE low (charge on), then load bq257xx_charger so its
+#                DT-enabled TS_IGNORE patch unlocks charging.
+#
+# The charger is powered whenever the adapter is plugged in, so a
+# register reset is issued first to clear previous-session state that
+# could start autonomous charging before this script runs.
+#
+# Presence source: BQ25792 REG1D bit0 (VBAT_PRESENT_STAT).
+
+START=99
+
+GPIO=/sys/class/gpio/battery_charge_enable/value
+
+start() {
+	# Clear register residue from the previous session (chip is not
+	# power-cycled while the adapter stays plugged in).
+	i2cset -f -y 0 0x6b 0x09 0x40 2>/dev/null   # REG09 REG_RST (bit6)
+	sleep 1
+
+	# Read battery presence, retry a few times on I2C errors.
+	v=""
+	for i in 1 2 3; do
+		v=$(i2cget -f -y 0 0x6b 0x1D 2>/dev/null) && break
+		sleep 1
+	done
+
+	if [ -n "$v" ] && [ $((v & 1)) = 1 ]; then
+		echo "Battery detected, loading bq25792xx_charger driver" >> /dev/kmsg
+		echo 1 > "$GPIO"     # GPIO7 physical LOW  = charging enabled
+		sleep 1
+		modprobe bq257xx_mfd
+		modprobe bq257xx_charger
+	else
+		echo "No battery, the bq25792xx_charger driver does not load." >> /dev/kmsg
+		echo 0 > "$GPIO"     # GPIO7 physical HIGH = charging disabled
+	fi
+}

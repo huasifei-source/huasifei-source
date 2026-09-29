@@ -16,7 +16,7 @@ include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
 
 PKG_NAME:=bq25792_charger
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 define KernelPackage/bq25792_charger
@@ -24,7 +24,6 @@ define KernelPackage/bq25792_charger
   TITLE:=TI BQ25792 I2C battery charger driver (mainline bq257xx MFD)
   DEPENDS:=@TARGET_mediatek +kmod-i2c-core
   FILES:=$(PKG_BUILD_DIR)/bq257xx_mfd.ko $(PKG_BUILD_DIR)/bq257xx_charger.ko
-  AUTOLOAD:=$(call AutoProbe,bq257xx_mfd bq257xx_charger)
 endef
 
 define KernelPackage/bq25792_charger/description
@@ -45,6 +44,13 @@ define Build/Compile
 		$(KERNEL_MAKE_FLAGS) \
 		M="$(PKG_BUILD_DIR)" \
 		modules
+endef
+
+# Not autoloaded at boot: files/etc/init.d/bq25792-gate loads the
+# modules only when a battery was detected (board has no hot-plug).
+define KernelPackage/bq25792_charger/install
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/etc/init.d/bq25792-gate $(1)/etc/init.d/bq25792-gate
 endef
 
 $(eval $(call KernelPackage,bq25792_charger))
