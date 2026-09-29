@@ -5,6 +5,8 @@
 #   include/linux/mfd/bq257xx.h           -> src/bq257xx.h
 #   drivers/power/supply/bq257xx_charger.c -> src/bq257xx_charger.c
 # Local changes: include path only (<linux/mfd/bq257xx.h> -> "bq257xx.h").
+# Vendor patch in bq257xx_charger.c: PRESENT property (REG1D bit0),
+# TS_IGNORE set at hw_init (charging gated manually via the CE pin).
 # Requires CONFIG_MFD_CORE=y (target/linux/generic/config-6.18).
 # Board: huasifei_trs_router_miniups (3S 18650 pack, I2C 0x6B,
 # charge-enable CE on GPIO7 active-low via gpio-export).

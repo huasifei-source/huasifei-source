@@ -63,6 +63,7 @@ struct bq257xx_chip_info {
  * @batoc_fault: charger reports battery over current fault
  * @oc_fault: charger reports over current fault
  * @battery_present: battery detected on VBAT (BQ25792 only, vendor)
+ * @ts_ignore: DT "ti,ts-ignore" - bypass TS qualification (vendor)
  * @usb_type: USB type reported from parent power supply
  * @supplied: Status of parent power supply
  * @iindpm_max: maximum input current limit (uA)
@@ -83,6 +84,7 @@ struct bq257xx_chg {
 	bool batoc_fault;
 	bool oc_fault;
 	bool battery_present;	/* vendor: BQ25792 REG1D bit0, not on BQ25703 */
+	bool ts_ignore;		/* vendor: DT ti,ts-ignore, BQ25792 only */
 	int usb_type;
 	int supplied;
 	u32 iindpm_max;
@@ -802,6 +804,20 @@ static int bq25792_hw_init(struct bq257xx_chg *pdata)
 	if (ret)
 		return ret;
 
+	/* vendor: bypass the TS thermistor qualification when the board
+	 * carries no NTC (DT "ti,ts-ignore"; the NTC follows the battery
+	 * pack).  Charging is gated manually through the CE pin (GPIO7,
+	 * sysfs battery_charge_enable) based on battery presence.
+	 * JEITA threshold bits in REG18 keep their defaults.
+	 */
+	if (pdata->ts_ignore) {
+		ret = regmap_update_bits(regmap, BQ25792_REG18_NTC_CONTROL_1,
+					 BQ25792_REG18_TS_IGNORE,
+					 BQ25792_REG18_TS_IGNORE);
+		if (ret)
+			return ret;
+	}
+
 	if (pdata->vbat_max < 5000000) {
 		/* 1S batteries */
 		reg = FIELD_PREP(BQ25792_REG0A_CELL_MASK, BQ25792_CELL_1S);
@@ -1218,6 +1234,8 @@ static int bq257xx_parse_dt(struct bq257xx_chg *pdata,
 				       &pdata->iindpm_max);
 	if (ret)
 		pdata->iindpm_max = pdata->chip->default_iindpm_uA;
+
+	pdata->ts_ignore = device_property_read_bool(dev, "ti,ts-ignore");
 
 	return 0;
 }
