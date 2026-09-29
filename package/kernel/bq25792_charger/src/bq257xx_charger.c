@@ -62,6 +62,7 @@ struct bq257xx_chip_info {
  * @ov_fault: charger reports over voltage fault
  * @batoc_fault: charger reports battery over current fault
  * @oc_fault: charger reports over current fault
+ * @battery_present: battery detected on VBAT (BQ25792 only, vendor)
  * @usb_type: USB type reported from parent power supply
  * @supplied: Status of parent power supply
  * @iindpm_max: maximum input current limit (uA)
@@ -81,6 +82,7 @@ struct bq257xx_chg {
 	bool ov_fault;
 	bool batoc_fault;
 	bool oc_fault;
+	bool battery_present;	/* vendor: BQ25792 REG1D bit0, not on BQ25703 */
 	int usb_type;
 	int supplied;
 	u32 iindpm_max;
@@ -193,6 +195,16 @@ static int bq25792_get_state(struct bq257xx_chg *pdata)
 		return ret;
 
 	pdata->charging = reg & BQ25792_REG1C_CHG_STAT_MASK;
+
+	/* vendor: hardware battery presence on VBAT (REG1D bit0).
+	 * Verified on TRS board: 1 = battery attached, 0 = empty pad,
+	 * clears immediately on removal.  Not consumed by mainline.
+	 */
+	ret = regmap_read(pdata->bq->regmap, BQ25792_REG1D_CHARGER_STATUS_2, &reg);
+	if (ret)
+		return ret;
+
+	pdata->battery_present = !!(reg & BQ25792_REG1D_VBAT_PRESENT_STAT);
 
 	ret = regmap_read(pdata->bq->regmap, BQ25792_REG20_FAULT_STATUS_0, &reg);
 	if (ret)
@@ -967,6 +979,10 @@ static int bq257xx_get_charger_property(struct power_supply *psy,
 		val->intval = pdata->online;
 		break;
 
+	case POWER_SUPPLY_PROP_PRESENT:
+		val->intval = pdata->battery_present;
+		break;
+
 	case POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT:
 		return pdata->chip->bq257xx_get_iindpm(pdata, &val->intval);
 
@@ -1000,6 +1016,7 @@ static enum power_supply_property bq257xx_power_supply_props[] = {
 	POWER_SUPPLY_PROP_MANUFACTURER,
 	POWER_SUPPLY_PROP_STATUS,
 	POWER_SUPPLY_PROP_ONLINE,
+	POWER_SUPPLY_PROP_PRESENT,
 	POWER_SUPPLY_PROP_HEALTH,
 	POWER_SUPPLY_PROP_INPUT_CURRENT_LIMIT,
 	POWER_SUPPLY_PROP_CURRENT_NOW,
