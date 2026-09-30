@@ -12,8 +12,11 @@
 # could start autonomous charging before this script runs.
 #
 # Presence source: BQ25792 REG1D bit0 (VBAT_PRESENT_STAT).
+# START=11: run early in the rcS sequence (~12s into boot), right after
+# procd init - gpio-export (0.1s), /dev/i2c-0 (1.5s) and the i2c-tools
+# binaries are all available by then; no dependency on network/wifi.
 
-START=99
+START=11
 
 GPIO=/sys/class/gpio/battery_charge_enable/value
 

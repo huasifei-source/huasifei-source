@@ -16,7 +16,7 @@ include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
 
 PKG_NAME:=bq25792_charger
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 define KernelPackage/bq25792_charger
