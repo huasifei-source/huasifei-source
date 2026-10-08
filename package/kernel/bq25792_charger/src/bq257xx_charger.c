@@ -6,6 +6,7 @@
 
 #include <linux/bitfield.h>
 #include <linux/byteorder/generic.h>
+#include <linux/delay.h>
 #include <linux/i2c.h>
 #include <linux/interrupt.h>
 #include "bq257xx.h"
@@ -63,6 +64,7 @@ struct bq257xx_chip_info {
  * @batoc_fault: charger reports battery over current fault
  * @oc_fault: charger reports over current fault
  * @battery_present: battery detected on VBAT (BQ25792 only, vendor)
+ * @chg_stat: decoded CHG_STAT field, REG1C [7:5] (BQ25792 only, vendor)
  * @ts_ignore: DT "ti,ts-ignore" - bypass TS qualification (vendor)
  * @usb_type: USB type reported from parent power supply
  * @supplied: Status of parent power supply
@@ -84,6 +86,7 @@ struct bq257xx_chg {
 	bool batoc_fault;
 	bool oc_fault;
 	bool battery_present;	/* vendor: BQ25792 REG1D bit0, not on BQ25703 */
+	unsigned int chg_stat;	/* vendor: BQ25792 REG1C [7:5], 0 on BQ25703 */
 	bool ts_ignore;		/* vendor: DT ti,ts-ignore, BQ25792 only */
 	int usb_type;
 	int supplied;
@@ -196,7 +199,17 @@ static int bq25792_get_state(struct bq257xx_chg *pdata)
 	if (ret)
 		return ret;
 
-	pdata->charging = reg & BQ25792_REG1C_CHG_STAT_MASK;
+	/* vendor: decode the CHG_STAT field per datasheet 9.3.9.  The
+	 * mainline "any non-zero value means charging" logic keeps
+	 * reporting CHARGING after termination, because the chip lingers
+	 * in TERM_DONE (111) instead of returning to NOT_CHARGING (000).
+	 */
+	pdata->chg_stat = FIELD_GET(BQ25792_REG1C_CHG_STAT_MASK, reg);
+	pdata->charging = (pdata->chg_stat == BQ25792_REG1C_CHG_STAT_TRICKLE ||
+			   pdata->chg_stat == BQ25792_REG1C_CHG_STAT_PRECHARGE ||
+			   pdata->chg_stat == BQ25792_REG1C_CHG_STAT_FAST_CHARGE ||
+			   pdata->chg_stat == BQ25792_REG1C_CHG_STAT_TAPER_CHARGE ||
+			   pdata->chg_stat == BQ25792_REG1C_CHG_STAT_TOP_OFF);
 
 	/* vendor: hardware battery presence on VBAT (REG1D bit0).
 	 * Verified on TRS board: 1 = battery attached, 0 = empty pad,
@@ -962,9 +975,21 @@ static int bq257xx_get_charger_property(struct power_supply *psy,
 				union power_supply_propval *val)
 {
 	struct bq257xx_chg *pdata = power_supply_get_drvdata(psy);
-	int ret = 0;
+	int ret;
+	int i;
 
-	ret = pdata->chip->bq257xx_get_state(pdata);
+	/* vendor: the charger occasionally NAKs on I2C while the converter
+	 * runs at high current; retry a couple of times before failing the
+	 * property read.  regmap I2C access already sleeps, so the context
+	 * is sleepable.
+	 */
+	for (i = 0; i < 3; i++) {
+		ret = pdata->chip->bq257xx_get_state(pdata);
+		if (!ret)
+			break;
+		if (i < 2)
+			msleep(2);
+	}
 	if (ret)
 		return ret;
 
@@ -972,7 +997,22 @@ static int bq257xx_get_charger_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_STATUS:
 		if (!pdata->online)
 			val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
-		else if (pdata->charging)
+		else if (pdata->chg_stat == BQ25792_REG1C_CHG_STAT_TERM_DONE) {
+			/* vendor: charge cycle terminated.  Confirm with the
+			 * battery voltage before reporting FULL (hardware
+			 * agreed flow: CHG_STAT is primary, VBAT auxiliary).
+			 * On a VBAT read error stay conservative and report
+			 * NOT_CHARGING; the next poll refreshes.
+			 */
+			int vbat;
+
+			if (pdata->battery_present &&
+			    !pdata->chip->bq257xx_get_vbat(pdata, &vbat) &&
+			    vbat >= pdata->vbat_max - 200000)
+				val->intval = POWER_SUPPLY_STATUS_FULL;
+			else
+				val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
+		} else if (pdata->charging)
 			val->intval = POWER_SUPPLY_STATUS_CHARGING;
 		else
 			val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
