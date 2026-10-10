@@ -629,6 +629,17 @@ define Device/hiwifi_hc5962
 endef
 TARGET_DEVICES += hiwifi_hc5962
 
+define Device/huasifei_ws1208
+  IMAGE_SIZE := 16064k
+  DEVICE_VENDOR := Huasifei
+  DEVICE_MODEL := WS1208
+  DEVICE_PACKAGES := kmod-mt7603 kmod-mt76x2 kmod-usb3 \
+	kmod-usb-ledtrig-usbport kmod-usb-net-qmi-wwan f2fsck mkf2fs luci-app-qmodem luci-light \
+	kmod-usb-serial-option uqmi kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
+	kmod-ipt-offload kmod-nf-flow iptables-mod-offload atenl
+endef
+TARGET_DEVICES += huasifei_ws1208
+
 define Device/iodata_wn-ax1167gr
   $(Device/dsa-migration)
   $(Device/uimage-lzma-loader)
