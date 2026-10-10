@@ -145,6 +145,14 @@ detect_mac80211() {
 		devidx=$(($devidx + 1))
 	done
 
+	# vendor: SSID suffix from the interface MAC (last 6 hex digits,
+	# requires /sbin/getmac).  Used only when a radio section is
+	# created for the first time; radios already present in the
+	# config skip the creation block below, so user modifications
+	# survive reboots and the periodic "wifi config" runs triggered
+	# by mac80211.hotplug.
+	mac_addr=`getmac | awk -F: '{gsub(/:/,""); print substr($0, length($0)-5)}'`
+
 	for _dev in /sys/class/ieee80211/*; do
 		[ -e "$_dev" ] || continue
 
@@ -160,6 +168,11 @@ detect_mac80211() {
 		ht_capab=""
 
 		get_band_defaults "$dev"
+
+		case "$mode_band" in
+			5g|6g) band_prefix=5G;;
+			*)     band_prefix=2G;;
+		esac
 
 		path="$(mac80211_phy_to_path "$dev")"
 		if [ -n "$path" ]; then
@@ -181,15 +194,11 @@ detect_mac80211() {
 			set wireless.default_radio${devidx}.device=radio${devidx}
 			set wireless.default_radio${devidx}.network=lan
 			set wireless.default_radio${devidx}.mode=ap
-			set wireless.default_radio${devidx}.ssid=OpenWrt
+			set wireless.default_radio${devidx}.ssid=WIFI-${band_prefix}-${mac_addr}
 			set wireless.default_radio${devidx}.encryption=none
 EOF
 		uci -q commit wireless
 
 		devidx=$(($devidx + 1))
 	done
-	mac_addr=`getmac | awk -F: '{gsub(/:/,""); print substr($0, length($0)-5)}'`
-	uci set wireless.default_radio0.ssid="WIFI-2G-${mac_addr}"
-	uci set wireless.default_radio1.ssid="WIFI-5G-${mac_addr}"
-	uci commit wireless
 }
