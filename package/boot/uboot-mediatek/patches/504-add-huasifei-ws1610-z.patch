@@ -1,5 +1,5 @@
 --- /dev/null
-+++ b/configs/mt7981_huasifei_ws1610_defconfig
++++ b/configs/mt7981_huasifei_ws1610_z_defconfig
 @@ -0,0 +1,124 @@
 +CONFIG_ARM=y
 +CONFIG_ARM_SMCCC=y
@@ -9,7 +9,7 @@
 +CONFIG_TEXT_BASE=0x41e00000
 +CONFIG_SYS_MALLOC_F_LEN=0x4000
 +CONFIG_NR_DRAM_BANKS=1
-+CONFIG_DEFAULT_DEVICE_TREE="mt7981-huasifei-ws1610"
++CONFIG_DEFAULT_DEVICE_TREE="mt7981-huasifei-ws1610-z"
 +CONFIG_OF_LIBFDT_OVERLAY=y
 +CONFIG_TARGET_MT7981=y
 +CONFIG_SYS_LOAD_ADDR=0x46000000
@@ -23,7 +23,7 @@
 +CONFIG_BOOTDELAY=30
 +CONFIG_AUTOBOOT_KEYED=y
 +CONFIG_AUTOBOOT_MENU_SHOW=y
-+CONFIG_DEFAULT_FDT_FILE="mediatek/mt7981b-huasifei-ws1610.dtb"
++CONFIG_DEFAULT_FDT_FILE="mediatek/mt7981b-huasifei-ws1610-z.dtb"
 +CONFIG_LOGLEVEL=7
 +CONFIG_PRE_CONSOLE_BUFFER=y
 +CONFIG_LOG=y
@@ -76,7 +76,7 @@
 +CONFIG_ENV_UBI_VOLUME_REDUND="ubootenv2"
 +CONFIG_ENV_RELOC_GD_ENV_ADDR=y
 +CONFIG_ENV_USE_DEFAULT_ENV_TEXT_FILE=y
-+CONFIG_ENV_DEFAULT_ENV_TEXT_FILE="defenvs/huasifei_ws1610_env"
++CONFIG_ENV_DEFAULT_ENV_TEXT_FILE="defenvs/huasifei_ws1610_z_env"
 +CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG=y
 +CONFIG_VERSION_VARIABLE=y
 +CONFIG_NETCONSOLE=y
@@ -126,7 +126,7 @@
 +CONFIG_ZSTD=y
 +CONFIG_HEXDUMP=y
 --- /dev/null
-+++ b/arch/arm/dts/mt7981-huasifei-ws1610.dts
++++ b/arch/arm/dts/mt7981-huasifei-ws1610-z.dts
 @@ -0,0 +1,63 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +
@@ -192,19 +192,19 @@
 +	status = "disabled";
 +};
 --- /dev/null
-+++ b/defenvs/huasifei_ws1610_env
++++ b/defenvs/huasifei_ws1610_z_env
 @@ -0,0 +1,56 @@
 +ipaddr=192.168.1.1
 +serverip=192.168.1.254
 +loadaddr=0x46000000
 +console=earlycon=uart8250,mmio32,0x11002000 console=ttyS0
-+bootconf=config-1#mt7981b-huasifei-ws1610
++bootconf=config-1#mt7981b-huasifei-ws1610-z
 +bootcmd=if pstore check ; then run boot_recovery ; else run boot_ubi ; fi
 +bootdelay=0
-+bootfile=openwrt-mediatek-filogic-huasifei_ws1610-initramfs-kernel.bin
-+bootfile_bl2=openwrt-mediatek-filogic-huasifei_ws1610-preloader.bin
-+bootfile_fip=openwrt-mediatek-filogic-huasifei_ws1610-bl31-uboot.fip
-+bootfile_upg=openwrt-mediatek-filogic-huasifei_ws1610-squashfs-sysupgrade.itb
++bootfile=openwrt-mediatek-filogic-huasifei_ws1610_z-initramfs-kernel.bin
++bootfile_bl2=openwrt-mediatek-filogic-huasifei_ws1610_z-preloader.bin
++bootfile_fip=openwrt-mediatek-filogic-huasifei_ws1610_z-bl31-uboot.fip
++bootfile_upg=openwrt-mediatek-filogic-huasifei_ws1610_z-squashfs-sysupgrade.itb
 +bootled_pwr=green:wlan
 +bootled_rec=green:wlan
 +bootmenu_confirm_return=askenv - Press ENTER to return to menu ; bootmenu 60

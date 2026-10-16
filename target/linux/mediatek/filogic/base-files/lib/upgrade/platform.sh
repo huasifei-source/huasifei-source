@@ -236,6 +236,7 @@ platform_do_upgrade() {
 	cudy,wr3000p-v1|\
 	huasifei,wh3000-pro-nand|\
 	huasifei,wh3000r-nand|\
+	huasifei,ws1610-z|\
 	huasifei,ws1610|\
 	huasifei,ws1698|\
 	huasifei,ws3006|\
