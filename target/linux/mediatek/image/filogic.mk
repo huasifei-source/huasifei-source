@@ -1920,7 +1920,7 @@ define Device/huasifei_ws1610
   KERNEL_IN_UBI := 1
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
   DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
-	kmod-usb3 f2fsck mkf2fs luci-light \
+	kmod-usb3 f2fsck mkf2fs luci-light luci-app-qmodem \
 	luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
 	luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
 	atenl kmod-tun luci-proto-openvpn
