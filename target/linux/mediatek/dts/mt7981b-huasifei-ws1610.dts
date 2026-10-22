@@ -95,11 +95,10 @@
 			gpios = <&pio 5 GPIO_ACTIVE_HIGH>;
 		};
 
-		/* SIM mode: 1 = dual-SIM single-standby 5G, 0 = dual-SIM dual-mode */
 		dual_sim {
 			gpio-export,name = "dual_sim";
 			gpio-export,output = <0>;
-			gpios = <&pio 13 GPIO_ACTIVE_HIGH>;
+			gpios = <&pio 13 GPIO_ACTIVE_LOW>;
 		};
 	};
 };
@@ -219,6 +218,12 @@
 	};
 };
 
+/* SerDes pairs are crossed on the PCB: P(host)->N(device), N(host)->P(device)
+ * (schematic note on the HSGMII TX/RX nets) - pnswap is mandatory */
+&sgmiisys0 {
+	mediatek,pnswap;
+};
+
 &pio {
 	spi0_flash_pins: spi0-pins {
 		mux {
@@ -238,6 +243,12 @@
 			bias-pull-down = <MTK_PUPD_SET_R1R0_11>;
 		};
 	};
+};
+
+/* internal GE PHY calibration data from efuse (as QWRT + wh3000r/ws3009 do) */
+&int_gbe_phy {
+	nvmem-cells = <&phy_calibration>;
+	nvmem-cell-names = "phy-cal-data";
 };
 
 &usb_phy {
