@@ -1,5 +1,5 @@
 From: Huasifei WS1610 bring-up
-Subject: [PATCH] net: phy: realtek: RTL8221B firmware patch + pcs rate-follow
+Subject: [PATCH] net: phy: realtek: RTL8221B firmware patch loader
 
 The RTL8221B SerDes requires Realtek's patch ramcode to be uploaded
 after every power-up; the MTK SDK ethernet driver does this on every
@@ -8,18 +8,18 @@ crossed SerDes pairs (Huasifei WS1610) the SerDes never locks without
 it: copper autoneg completes and phylink reports "Link is Up", but no
 frame is ever received.
 
-Two parts, both mirroring the vendor SDK behaviour verified working on
-this hardware (QWRT/immortalwrt-mt798x reference firmware):
-
-1. rtl8221b_fw.c: port of the SDK Rtl8226b_phy_init() patch loader
-   (nc0/nc1/nc2/uc2/uc ramcode tables), hooked into the shared
-   rtl822xb_config_init() and gated on the RTL8221B PHY ID.
-
-2. pcs-mtk-lynxi rate-follow: when a 2500base-x link resolves at a
-   lower PHY speed, reconfigure the PCS line rate to 1.25G
-   (1000base-x/SGMII), matching the vendor "configuring for
-   phy/1000base-x" behaviour at 1GbE.
-
+Port of the SDK Rtl8226b_phy_init() patch loader (nc0/nc1/nc2/uc2/uc
+ramcode tables) into rtl8221b_fw.c, hooked into the shared
+rtl822xb_config_init(). With the patch applied the PHY performs its own
+SerDes rate adaptation, so the PCS keeps its fixed 2500base-x line rate
+at every copper speed (plain mainline behaviour). Do NOT reconfigure
+the PCS rate after link-up: switching it late leaves the SerDes pair
+inconsistent (link "Up", zero RX until a full reconfig). The ramcode is
+loaded at ethernet probe time (mtk_early_rtl8221b_init hook in
+mtk_eth_soc.c, the vendor rtl822x_init() equivalent): pin the SerDes
+option mode first, then upload, BEFORE copper autoneg starts. The
+phylink config_init path does nothing on this board - uploading from
+there leaves the SerDes dead when the cable is linked during boot.
 --- a/drivers/net/phy/realtek/Makefile
 +++ b/drivers/net/phy/realtek/Makefile
 @@ -2,5 +2,6 @@
@@ -31,7 +31,7 @@ this hardware (QWRT/immortalwrt-mt798x reference firmware):
  obj-$(CONFIG_REALTEK_PHY)	+= realtek.o
 --- /dev/null
 +++ b/drivers/net/phy/realtek/rtl8221b_fw.c
-@@ -0,0 +1,1446 @@
+@@ -0,0 +0,1447 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/* Realtek RTL8221B-VB vendor firmware patch loader.
 + *
@@ -1096,6 +1096,7 @@ this hardware (QWRT/immortalwrt-mt798x reference firmware):
 +		ret = rtl_r(phydev, MDIO_MMD_VEND2, 0xA438, &v);
 +		if (ret)
 +			goto out;
++		phydev_info(phydev, "fw patch: version reg=0x%04x want=0x%04x\n", v, patchver);
 +		if (v == patchver) {
 +			phydev_info(phydev, "fw patch already applied\n");
 +			ret = 0;
@@ -1480,7 +1481,7 @@ this hardware (QWRT/immortalwrt-mt798x reference firmware):
 +}
 --- a/drivers/net/phy/realtek/realtek_main.c
 +++ b/drivers/net/phy/realtek/realtek_main.c
-@@ -1460,8 +1460,20 @@
+@@ -1279,8 +1279,42 @@
  	return rtl822x_set_serdes_option_mode(phydev, true);
  }
  
@@ -1490,6 +1491,10 @@ this hardware (QWRT/immortalwrt-mt798x reference firmware):
  {
 +	int ret;
 +
++	phydev_info(phydev, "wan dbg: config_init phy_id=0x%08x c45=%d mmd1_id=0x%08x link=%d speed=%d\n",
++		    phydev->phy_id, phydev->is_c45,
++		    phydev->is_c45 ? phydev->c45_ids.device_ids[MDIO_MMD_PMAPMD] : 0,
++		    phydev->link, phydev->speed);
 +	/* Upload the Realtek SerDes firmware patch before configuring the
 +	 * SerDes option mode; skipped automatically on non-RTL8221B PHYs
 +	 * and on already-patched silicon.
@@ -1498,55 +1503,143 @@ this hardware (QWRT/immortalwrt-mt798x reference firmware):
 +	if (ret < 0)
 +		return ret;
 +
++	if (of_machine_is_compatible("huasifei,ws1610")) {
++		/* ramcode + SerDes option mode were applied at ethernet
++		 * probe time (mtk_early_rtl8221b_init in mtk_eth_soc.c),
++		 * mirroring the vendor init order; touching the PHY again
++		 * here leaves the SerDes dead when the cable was linked
++		 * during boot.
++		 */
++		{
++			int opt = phy_read_mmd(phydev, MDIO_MMD_VEND1, 0x697a);
++			int c3 = phy_read_mmd(phydev, MDIO_MMD_VEND1, 0x7580);
++
++			phydev_info(phydev, "wan dbg: netifd serdes option=0x%04x ctrl3=0x%04x\n",
++				    opt, c3);
++		}
++		phydev_info(phydev, "fw patch: early-boot applied, skip\n");
++		return 0;
++	}
++
  	return rtl822x_set_serdes_option_mode(phydev, false);
  }
  
---- a/drivers/net/pcs/pcs-mtk-lynxi.c
-+++ b/drivers/net/pcs/pcs-mtk-lynxi.c
-@@ -231,6 +231,46 @@
- 	struct mtk_pcs_lynxi *mpcs = pcs_to_mtk_pcs_lynxi(pcs);
- 	unsigned int sgm_mode;
+@@ -1341,19 +1375,23 @@
+ 	int val;
++	phy_interface_t old = phydev->interface;
  
-+		/* Rate-follow for 2500base-x links whose PHY drops its SerDes to
-+		 * the copper speed (RTL8221B downshift mode). Keep both sides of
-+		 * the lane at the same rate, mirroring the vendor SDK behaviour
-+		 * verified on Huasifei WS1610 (MT7981 + RTL8221B). When switching
-+		 * to a lower rate also enable in-band autoneg between the PCS and
-+		 * the PHY SerDes, exactly like the vendor mtk_sgmii_setup_mode_an()
-+		 * (link timer + remote-fault-dis + AN restart).
+ 	if (!phydev->link)
+ 		return;
+ 
+ 	/* Change interface according to serdes mode */
+ 	val = phy_read_mmd(phydev, MDIO_MMD_VEND1, RTL822X_VND1_SERDES_CTRL3);
+ 	if (val < 0)
+ 		return;
+ 
+ 	switch (val & RTL822X_VND1_SERDES_CTRL3_MODE_MASK) {
+ 	case RTL822X_VND1_SERDES_CTRL3_MODE_2500BASEX:
+ 		phydev->interface = PHY_INTERFACE_MODE_2500BASEX;
+ 		break;
+ 	case RTL822X_VND1_SERDES_CTRL3_MODE_SGMII:
+ 		phydev->interface = PHY_INTERFACE_MODE_SGMII;
+ 		break;
+ 	}
++	if (phydev->interface != old)
++		phydev_info(phydev, "rtl822xb: interface %s -> %s\n",
++			    phy_modes(old), phy_modes(phydev->interface));
+ }
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -1048,6 +1048,83 @@
+ 	mtk_m32(eth, PPSC_MDC_CFG, val, MTK_PPSC);
+ }
+ 
++extern int rtl8221b_load_firmware_patch(struct phy_device *phydev);
++/* Early RTL8221B SerDes firmware patch - vendor rtl822x_init() equivalent.
++ * The vendor loads the SerDes ramcode and pins the SerDes option mode at
++ * ethernet probe time, BEFORE copper autoneg completes; loading it later
++ * (phylink config_init) leaves the SerDes dead on boards with crossed
++ * SerDes pairs (WS1610) when the cable is linked during boot.
++ * Verbose on purpose: a single boot log shows the full bring-up chain.
++ */
++static void mtk_early_rtl8221b_init(struct mtk_eth *eth)
++{
++	struct phy_device *phydev;
++	int addr, val;
++	bool found = false;
++
++	if (!of_machine_is_compatible("huasifei,ws1610"))
++		return;
++
++	for (addr = 0; addr < PHY_MAX_ADDR; addr++) {
++		phydev = mdiobus_get_phy(eth->mii_bus, addr);
++		if (!phydev)
++			continue;
++
++		dev_info(eth->dev,
++				 "wan dbg: mdio %d phy_id=0x%08x c45=%d mmd1_id=0x%08x\n",
++				 addr, phydev->phy_id, phydev->is_c45,
++				 phydev->c45_ids.device_ids[MDIO_MMD_PMAPMD]);
++
++		/* C45 devices keep their ID in c45_ids.device_ids[MMD1],
++		 * not phy_id (see rtlgen_is_c45_match) - check both.
 +		 */
-+		if (interface == PHY_INTERFACE_MODE_2500BASEX && speed > 0) {
-+			phy_interface_t want;
-+			unsigned int neg;
-+			unsigned int ctl, mode;
++		if (phydev->phy_id != 0x001cc849 &&
++		    phydev->c45_ids.device_ids[MDIO_MMD_PMAPMD] != 0x001cc849)
++			continue;
++		found = true;
 +
-+			if (speed >= SPEED_2500) {
-+				want = PHY_INTERFACE_MODE_2500BASEX;
-+				neg = neg_mode;
-+			} else {
-+				if (speed > SPEED_100)
-+					want = PHY_INTERFACE_MODE_1000BASEX;
-+				else
-+					want = PHY_INTERFACE_MODE_SGMII;
-+				neg = PHYLINK_PCS_NEG_INBAND_ENABLED;
-+			}
++		dev_info(eth->dev,
++				 "wan patch test v3: RTL8221B early init (mdio addr %d)\n",
++				 addr);
 +
-+			if (want != mpcs->interface ||
-+			    (want != PHY_INTERFACE_MODE_2500BASEX &&
-+			     !(neg & PHYLINK_PCS_NEG_INBAND_ENABLED))) {
-+				dev_info(mpcs->dev, "rate-follow: speed=%d, SerDes -> %s (inband AN)\n",
-+					 speed, phy_modes(want));
-+				mtk_pcs_lynxi_config(pcs, neg, want,
-+					     mpcs->advertising, true);
++		/* Pin the SerDes option mode first (vendor order): the
++		 * register write does not stick once the patched SerDes
++		 * controller is running.
++		 */
++		val = phy_read_mmd(phydev, MDIO_MMD_VEND1, 0x75f3);
++		dev_info(eth->dev, "wan dbg: 0x75f3=0x%04x\n", val);
++		if (val >= 0)
++			phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x75f3,
++					      val & ~BIT(0));
 +
-+				regmap_read(mpcs->regmap, SGMSYS_PCS_CONTROL_1, &ctl);
-+				regmap_read(mpcs->regmap, SGMSYS_SGMII_MODE, &mode);
-+				dev_info(mpcs->dev, "pcs after switch: ctl=0x%x mode=0x%x\n",
-+					 ctl, mode);
-+			}
-+		}
++		val = phy_read_mmd(phydev, MDIO_MMD_VEND1, 0x697a);
++		dev_info(eth->dev, "wan dbg: 0x697a=0x%04x, pinning 0x8002\n", val);
++		if (val >= 0)
++			phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x697a,
++					      (val & ~0x3f) | 0x2 | BIT(15));
++		dev_info(eth->dev, "wan dbg: 0x697a now=0x%04x\n",
++			 phy_read_mmd(phydev, MDIO_MMD_VEND1, 0x697a));
 +
++		dev_info(eth->dev, "wan dbg: copper stat1=0x%04x (bit2=link)\n",
++			 phy_read_mmd(phydev, MDIO_MMD_PMAPMD, MDIO_STAT1));
 +
- 	if (neg_mode != PHYLINK_PCS_NEG_INBAND_ENABLED) {
- 		/* Force the speed and duplex setting */
- 		if (speed == SPEED_10)
++		msleep(500);
++
++		val = phy_read_mmd(phydev, MDIO_MMD_AN, MDIO_CTRL1);
++		if (val >= 0)
++			phy_write_mmd(phydev, MDIO_MMD_AN, MDIO_CTRL1, val | BIT(9));
++
++		msleep(500);
++
++		rtl8221b_load_firmware_patch(phydev);
++		break;
++	}
++
++	if (!found)
++		dev_info(eth->dev,
++				 "wan patch test v3: RTL8221B not found on mdio bus\n");
++}
++
+ static int mtk_mdio_init(struct mtk_eth *eth)
+ {
+ 	unsigned int max_clk = 2500000;
+@@ -1089,6 +1166,8 @@
+ 	mtk_mdio_config(eth);
+ 	dev_dbg(eth->dev, "MDC is running on %d Hz\n", MDC_MAX_FREQ / eth->mdc_divider);
+ 	ret = of_mdiobus_register(eth->mii_bus, mii_np);
++	if (ret == 0)
++		mtk_early_rtl8221b_init(eth);
+ 
+ err_put_node:
+ 	of_node_put(mii_np);
