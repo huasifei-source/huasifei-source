@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# WS1610: bring the WAN (RTL8221B) netdev up during preinit (~5s) so the
+# PHY SerDes gets configured - including the SGMII in-band AN disable from
+# generic 720-04 - BEFORE copper autoneg completes when a cable is plugged
+# during boot. This is the userspace behaviour that makes lede-based
+# firmware work on this board (lede preinit ups a netdev at ~5s via
+# 10_indicate_preinit preinit_ip_config), ported as a board-gated hook
+# instead of a kernel patch. netifd re-configures the device later as usual.
+
+ws1610_wan_early_up() {
+	local dev
+
+	[ "$(board_name)" = "huasifei,ws1610" ] || return 0
+
+	for dev in wan eth0; do
+		grep -q "$dev" /proc/net/dev || continue
+		ip link set dev "$dev" up 2>/dev/null && break
+	done
+
+	return 0
+}
+
+boot_hook_add preinit_main ws1610_wan_early_up
