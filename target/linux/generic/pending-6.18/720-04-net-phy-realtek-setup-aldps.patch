@@ -6,10 +6,19 @@ Subject: [PATCH] net: phy: realtek: setup ALDPS on RTL822x
 Setup Link Down Power Saving Mode according the DTS property
 just like for RTL821x 1GE PHYs.
 
+Merged (huasifei 2026-10-26): also disable SGMII in-band AN for the 2.5G
+PHYs exactly as lede pending
+"720-02-net-phy-realtek-disable-SGMII-in-band-AN-for-2-5G-PHYs.patch"
+(Daniel Golle), preserving lede's execution order (in-band AN disable
+before the 0x6f11 SerDes magic and ALDPS setup). Without this, the
+RTL8221B SerDes-side in-band autoneg wedges when copper autoneg
+completes during boot with the cable plugged (RX stays 0 until a full
+network restart).
+
 Signed-off-by: Daniel Golle <daniel@makrotopia.org>
 ---
- drivers/net/phy/realtek/realtek_main.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/net/phy/realtek/realtek_main.c | 65 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
 
 --- a/drivers/net/phy/realtek/realtek_main.c
 +++ b/drivers/net/phy/realtek/realtek_main.c
@@ -24,7 +33,7 @@ Signed-off-by: Daniel Golle <daniel@makrotopia.org>
  #define RTL8366RB_POWER_SAVE			0x15
  #define RTL8366RB_POWER_SAVE_ON			BIT(12)
  
-@@ -216,6 +220,10 @@ struct rtl821x_priv {
+@@ -216,6 +220,10 @@
  	u16 iner;
  };
  
@@ -35,7 +44,7 @@ Signed-off-by: Daniel Golle <daniel@makrotopia.org>
  static int rtl821x_read_page(struct phy_device *phydev)
  {
  	return __phy_read(phydev, RTL821x_PAGE_SELECT);
-@@ -1238,6 +1246,18 @@ static int rtl822x_write_mmd(struct phy_
+@@ -1238,6 +1246,18 @@
  
  static int rtl822x_probe(struct phy_device *phydev)
  {
@@ -54,7 +63,7 @@ Signed-off-by: Daniel Golle <daniel@makrotopia.org>
  	if (IS_ENABLED(CONFIG_REALTEK_PHY_HWMON) &&
  	    phydev->phy_id != RTL_GENERIC_PHYID)
  		return rtl822x_hwmon_init(phydev);
-@@ -1328,6 +1348,19 @@ static int rtl822xb_write_mmd(struct phy
+@@ -1328,9 +1348,23 @@
  	return write_ret;
  }
  
@@ -74,11 +83,45 @@ Signed-off-by: Daniel Golle <daniel@makrotopia.org>
  static int rtl822x_set_serdes_option_mode(struct phy_device *phydev, bool gen1)
  {
  	bool has_2500, has_sgmii;
-@@ -1385,7 +1418,15 @@ static int rtl822x_set_serdes_option_mod
++	int val;
+ 	u16 mode;
+ 	int ret;
+ 
+@@ -1377,15 +1411,43 @@
+ 	if (gen1 || ret < 0)
+ 		return ret;
+ 
+-	ret = phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x6a04, 0x0503);
++	if (!gen1) {
++		ret = phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x6a04, 0x0503);
++		if (ret < 0)
++			return ret;
++
++		ret = phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x6f10, 0xd455);
++		if (ret < 0)
++			return ret;
++	}
++
++	/* Disable SGMII in-band AN (lede 720-02, Daniel Golle) */
++	ret = phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x7588, 0x2);
++	if (ret < 0)
++		return ret;
++
++	ret = phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x7589, 0x71d0);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x6f10, 0xd455);
++	ret = phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x7587, 0x3);
  	if (ret < 0)
  		return ret;
  
 -	return phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x6f11, 0x8020);
++	ret = phy_read_mmd_poll_timeout(phydev, MDIO_MMD_VEND1, 0x7587,
++					val, !(val & BIT(0)), 500, 100000, false);
++	if (ret < 0)
++		return ret;
++
 +	ret = phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x6f11, 0x8020);
 +	if (ret < 0)
 +		return ret;
