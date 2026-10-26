@@ -104,6 +104,8 @@
 };
 
 &eth {
+	pinctrl-names = "default";
+	pinctrl-0 = <&mdio_pins>;
 	status = "okay";
 
 	gmac0: mac@0 {
@@ -136,6 +138,10 @@
 			reset-gpios = <&pio 39 GPIO_ACTIVE_LOW>;
 			reset-assert-us = <100000>;
 			reset-deassert-us = <100000>;
+			interrupts = <38 IRQ_TYPE_LEVEL_LOW>;
+			interrupt-parent = <&pio>;
+			realtek,led-link-select = <0x03 0xa4 0x00>;
+			realtek,led-act-select = <0x3513>;
 			realtek,aldps-enable;
 		};
 	};
