@@ -564,3 +564,9 @@ if [ ! -s /etc/config/system ]; then
 	for key in $keys; do generate_led $key; done
 fi
 uci commit
+
+# Flush everything this script generated (board.json + /etc/config/*) to
+# flash: without this an unclean shutdown right after firstboot can leave
+# files present but with uncommitted data (observed as a 0-byte
+# /etc/board.json permanently breaking wifi-scripts).
+sync

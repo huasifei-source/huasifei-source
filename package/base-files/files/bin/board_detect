@@ -15,7 +15,14 @@ if [ -d "/etc/board.d/" ] && [ ! -s "$REAL_CFG" ]; then
 fi
 
 if [ -s "$CFG" ]; then
+	# Make the temp file's data durable BEFORE the rename, and the rename
+	# durable after it: without the syncs an unclean shutdown in between
+	# can leave the renamed file present on flash with no data committed
+	# (observed as a 0-byte /etc/board.json, which permanently breaks
+	# wifi-scripts radio detection - see /etc/init.d/board_json_guard).
+	sync
 	mv "$CFG" "$REAL_CFG" || exit
+	sync
 else
 	rm -f "$CFG"
 	exit 1
