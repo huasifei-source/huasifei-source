@@ -1,0 +1,33 @@
+#!/bin/sh /etc/rc.common
+# Guard against a missing or corrupted /etc/board.json.
+#
+# /etc/board.json is written once at firstboot by config_generate.
+# If power is lost while firstboot is writing it (e.g. flash followed by
+# an unclean reboot), the file may end up missing, empty or truncated.
+# Once that happens wifi-scripts fails with "PHY is undefined for device"
+# on every boot and WiFi never comes up again - the device needs manual
+# recovery.
+#
+# Since board.json is fully derived from /etc/board.d/*, we can safely
+# regenerate it whenever it is missing or not valid JSON.
+#
+# Note: board_detect skips regeneration if the target file is non-empty,
+# so a truncated file must be removed first.
+
+START=11
+
+validate_board_json() {
+	[ -s /etc/board.json ] || return 1
+
+	# must parse as JSON and contain a model string
+	jsonfilter -q -i /etc/board.json -e '@.model' >/dev/null 2>&1
+}
+
+boot() {
+	if ! validate_board_json; then
+		echo "board_json_guard: /etc/board.json missing or corrupt, regenerating" > /dev/kmsg
+		logger -t board_json_guard "board.json missing or corrupt, regenerating"
+		rm -f /etc/board.json
+		board_detect
+	fi
+}
