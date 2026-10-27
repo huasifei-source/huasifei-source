@@ -95,7 +95,7 @@
 
 		dual_sim {
 			gpio-export,name = "dual_sim";
-			gpio-export,output = <0>;
+			gpio-export,output = <1>;
 			gpios = <&pio 13 GPIO_ACTIVE_LOW>;
 		};
 	};
