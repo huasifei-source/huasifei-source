@@ -74,6 +74,7 @@ modem_settings()
 		#m2 usb3.0 
 		#(slot 2)
 		add_usb_slot_cfg "m2_0" "2-1" "m2_0" "green:5g" "green:sim1" "m2_reset_1" "1" "0" "5"
+		uci set qmodem.m2_0.sim_led2="green:sim2"
 		#minipci usb2.0 
 		#(slot 1)
 		add_usb_slot_cfg "minipci_0" "1-1" "minipci_0" "green:4g" "green:sim2" "" "" "" "10"

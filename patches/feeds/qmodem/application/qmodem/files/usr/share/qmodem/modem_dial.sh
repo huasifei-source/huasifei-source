@@ -29,6 +29,7 @@ get_led_by_slot()
     if [ "$modem_slot" = "$slot" ];then
         config_get sim_led "$cfg" sim_led
         config_get net_led "$cfg" net_led
+        config_get sim_led2 "$cfg" sim_led2
     fi
 }
 
@@ -300,6 +301,28 @@ set_led()
     case $type in
         sim)
             [ -z "$sim_led" ] && return
+            if [ -n "$sim_led2" ]; then
+                # Dual-SIM single-module: light the LED matching the slot the
+                # modem actually uses. Query AT+QUIMSLOT? directly - qmodem's
+                # $sim_slot mis-parses "+QSIMDET: 0,2" and always yields 1.
+																local active=""
+                # 1) read the slot from qmodem modem-info cache (rpcd get_info,
+                #    same data the web UI shows) - zero AT cost. Slot value stays
+                #    valid: switching slots requires QUIMSLOT + module reboot.
+                [ -f "/tmp/cache_info_$modem_config" ] && \
+                    active=$(jq -r '.modem_info[] | select(.key=="SIM Slot") | .value' "/tmp/cache_info_$modem_config" 2>/dev/null)
+                # 2) cache absent (web never polled): vendor/quectel.sh pipeline
+                [ -z "$active" ] && [ -n "$at_port" ] && \
+                    active=$(at $at_port AT+QUIMSLOT? | grep "+QUIMSLOT:" | awk -F' ' '{print $2}' | sed 's/\r//g')
+                # 3) last resort: legacy $sim_slot (QSIMDET parse, tends to 1)
+                [ -z "$active" ] && active="${sim_slot:-1}"
+                logger -t simled_dbg "cfg=[$modem_config] cache_exists=[$(test -f /tmp/cache_info_$modem_config && echo Y || echo N)] at_port=[$at_port] active=[$active] sim_led2=[$sim_led2] value=[$value]"
+                local led_on="$sim_led" led_off="$sim_led2"
+                [ "$active" = "2" ] && { led_on="$sim_led2"; led_off="$sim_led"; }
+                echo 0 > /sys/class/leds/$led_off/brightness 2>/dev/null
+                echo $value > /sys/class/leds/$led_on/brightness
+                return
+            fi
             echo $value > /sys/class/leds/$sim_led/brightness
             ;;
         net)
