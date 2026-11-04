@@ -110,8 +110,9 @@
             "1e0e:9011": {
                 "name": "simcom_a8200_serias",
                 "mode": "rndis",
-                "option_driver": 0,
+                "option_driver": 1,
                 "include": [
+                    "1.0",
                     "1.4",
                     "1.5"
                 ]

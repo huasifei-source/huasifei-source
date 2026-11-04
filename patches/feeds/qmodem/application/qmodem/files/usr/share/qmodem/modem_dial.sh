@@ -1175,6 +1175,19 @@ at_dial()
         "simcom")
             case $platform in
                 "asrmicro")                    
+                    # A76XX: USB net auto-dial ships disabled (DIALMODE=1); the RNDIS/ECM data
+                    # path only carries traffic after DIALMODE=0. Query first, write only
+                    # when needed (takes effect immediately, saves redundant sets).
+                    dialmode_res=$(cmd_dial_command "${at_port}" "AT+DIALMODE?" | grep "+DIALMODE:")
+                    case "$dialmode_res" in
+                        *"+DIALMODE: 0"*)
+                            m_debug "DIALMODE already 0 (auto-dial on)"
+                            ;;
+                        *)
+                            cmd_dial_command "${at_port}" "AT+DIALMODE=0" > /dev/null
+                            m_debug "DIALMODE 1 -> 0 (A76XX USB net auto-dial enabled)"
+                            ;;
+                    esac
                     at_command="AT+CGACT=1,$pdp_index"
                     cgdcont_command="AT+CGDCONT=$pdp_index,\"$pdp_type\""$apn_append
                     ;;
