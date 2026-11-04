@@ -515,6 +515,12 @@ check_ip()
                     "qualcomm")
                         check_ip_command="AT+CGPADDR=6"
                         ;;
+                    *)
+                        # asrmicro/lte previously fell through with an unset
+                        # (empty) command, which wedges the port and spams
+                        # "response unexpected" every cycle
+                        check_ip_command="AT+CGPADDR=$pdp_index"
+                        ;;
                 esac
                 ;;
             "neoway")
