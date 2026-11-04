@@ -97,6 +97,16 @@
                     "1.2"
                 ]
             },
+            "2cb7:0112": {
+                "name": "fg132-rmnet",
+                "mode": "qmi",
+                "option_driver": 1
+            },
+            "2cb7:0118": {
+                "name": "fg132-ecm",
+                "mode": "ecm",
+                "option_driver": 1
+            },
             "1e0e:9011": {
                 "name": "simcom_a8200_serias",
                 "mode": "rndis",
