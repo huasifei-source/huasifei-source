@@ -840,6 +840,7 @@ define Device/huasifei_wh1200
   DEVICE_VENDOR := HUASIFEI
   DEVICE_MODEL := WH1200
   DEVICE_PACKAGES := kmod-mt7615e kmod-mt7663-firmware-ap \
+	kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim \
 	kmod-usb2 kmod-usb-serial kmod-usb-net-qmi-wwan uqmi\
 	kmod-usb-serial-option luci-app-qmodem luci-light kmod-ipt-offload kmod-nf-flow iptables-mod-offload atenl
 	
@@ -851,7 +852,8 @@ define Device/huasifei_shf283
   DEVICE_VENDOR := Huasifei
   DEVICE_MODEL := SHF283
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci kmod-usb-serial kmod-usb-net-qmi-wwan uqmi kmod-usb-serial-option \
-  luci-app-qmodem luci-light kmod-ipt-offload kmod-nf-flow iptables-mod-offload atenl
+  kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim \
+  luci-app-qmodem luci-light kmod-ipt-offload kmod-nf-flow iptables-mod-offload atenl \
   SUPPORTED_DEVICES += huasifei,shf283
 endef
 TARGET_DEVICES += huasifei_shf283
@@ -861,7 +863,8 @@ define Device/huasifei_shf285
   DEVICE_VENDOR := Huasifei
   DEVICE_MODEL := SHF285
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci kmod-usb-serial kmod-usb-net-qmi-wwan uqmi kmod-usb-serial-option \
-  luci-app-qmodem luci-light kmod-ipt-offload kmod-nf-flow iptables-mod-offload atenl
+  kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim \
+  luci-app-qmodem luci-light kmod-ipt-offload kmod-nf-flow iptables-mod-offload atenl \
   SUPPORTED_DEVICES += huasifei,shf285
 endef
 TARGET_DEVICES += huasifei_shf285
