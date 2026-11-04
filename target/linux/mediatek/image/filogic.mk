@@ -1898,7 +1898,6 @@ define Device/huasifei_ws1610_z
 	kmod-usb3 f2fsck mkf2fs luci-light \
 	luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
 	luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
-	kmod-usb-serial kmod-usb-serial-option kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim kmod-usb-net-qmi-wwan uqmi \
 	atenl kmod-tun luci-proto-openvpn
   SUPPORTED_DEVICES += huasifei,ws1610
   ARTIFACTS := preloader.bin bl31-uboot.fip
@@ -1953,7 +1952,6 @@ define Device/vanconnect_dual-wan
 	kmod-usb3 f2fsck mkf2fs luci-light \
 	luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
 	luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
-	kmod-usb-serial kmod-usb-serial-option kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim kmod-usb-net-qmi-wwan uqmi \
 	atenl kmod-tun luci-proto-openvpn luci-app-sqm
   ARTIFACTS := preloader.bin bl31-uboot.fip
   ARTIFACT/preloader.bin := mt7981-bl2 spim-nand-ddr4
