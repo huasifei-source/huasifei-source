@@ -1825,6 +1825,7 @@ define Device/huasifei_wh3000-pro-emmc
 	kmod-hwmon-pwmfan kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
   luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
   luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
+	kmod-usb-serial kmod-usb-serial-option kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim kmod-usb-net-qmi-wwan uqmi \
   luci-app-fancontrol atenl kmod-tun luci-proto-openvpn
   SUPPORTED_DEVICES += huasifei,wh3000-pro
   KERNEL_INITRAMFS := kernel-bin | lzma | \
@@ -1843,6 +1844,7 @@ define Device/huasifei_wh3000-emmc
 	kmod-hwmon-pwmfan kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
   luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
   luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
+	kmod-usb-serial kmod-usb-serial-option kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim kmod-usb-net-qmi-wwan uqmi \
   luci-app-fancontrol atenl kmod-tun luci-proto-openvpn
   SUPPORTED_DEVICES += huasifei,wh3000-pro
   KERNEL_INITRAMFS := kernel-bin | lzma | \
@@ -1896,6 +1898,7 @@ define Device/huasifei_ws1610_z
 	kmod-usb3 f2fsck mkf2fs luci-light \
 	luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
 	luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
+	kmod-usb-serial kmod-usb-serial-option kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim kmod-usb-net-qmi-wwan uqmi \
 	atenl kmod-tun luci-proto-openvpn
   SUPPORTED_DEVICES += huasifei,ws1610
   ARTIFACTS := preloader.bin bl31-uboot.fip
@@ -1923,6 +1926,7 @@ define Device/huasifei_ws1610
 	kmod-usb3 f2fsck mkf2fs luci-light luci-app-qmodem \
 	luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
 	luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
+	kmod-usb-serial kmod-usb-serial-option kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim kmod-usb-net-qmi-wwan uqmi \
 	atenl kmod-tun luci-proto-openvpn
   ARTIFACTS := preloader.bin bl31-uboot.fip
   ARTIFACT/preloader.bin := mt7981-bl2 spim-nand-ddr4
@@ -1949,6 +1953,7 @@ define Device/vanconnect_dual-wan
 	kmod-usb3 f2fsck mkf2fs luci-light \
 	luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
 	luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
+	kmod-usb-serial kmod-usb-serial-option kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim kmod-usb-net-qmi-wwan uqmi \
 	atenl kmod-tun luci-proto-openvpn luci-app-sqm
   ARTIFACTS := preloader.bin bl31-uboot.fip
   ARTIFACT/preloader.bin := mt7981-bl2 spim-nand-ddr4
@@ -1969,6 +1974,7 @@ define Device/huasifei_ws1698
 	kmod-hwmon-pwmfan kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
   luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
   luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
+	kmod-usb-serial kmod-usb-serial-option kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim kmod-usb-net-qmi-wwan uqmi \
   atenl kmod-tun luci-proto-openvpn
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
@@ -1991,6 +1997,7 @@ define Device/huasifei_ws3006
 	kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
   luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
   luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
+	kmod-usb-serial kmod-usb-serial-option kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim kmod-usb-net-qmi-wwan uqmi \
   atenl kmod-tun luci-proto-openvpn luci-app-qmodem-mwan 
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
@@ -2027,6 +2034,7 @@ define Device/huasifei_trs_router_miniups
 	kmod-usb2 kmod-usb3 f2fsck mkf2fs luci-light luci-app-samba4 \
 	kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
 	kmod-usb-net-qmi-wwan kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
+	kmod-usb-serial kmod-usb-serial-option kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim uqmi \
 	luci-app-qmodem luci-app-qmodem-mwan atenl kmod-bq25792_charger i2c-tools
   ARTIFACTS := preloader.bin bl31-uboot.fip
   ARTIFACT/preloader.bin := mt7981-bl2 spim-nand-ddr3
@@ -2047,6 +2055,7 @@ define Device/huasifei_ws3009
 	kmod-usb3 f2fsck mkf2fs luci-app-qmodem luci-light \
   luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
   luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
+	kmod-usb-serial kmod-usb-serial-option kmod-usb-net-cdc-ether kmod-usb-net-rndis kmod-usb-net-cdc-ncm kmod-usb-net-cdc-mbim kmod-usb-net-qmi-wwan uqmi \
   atenl kmod-tun luci-proto-openvpn luci-app-qmodem-mwan
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
