@@ -221,10 +221,15 @@ set_network_prefer_nr()
 # $1:AT串口
 get_voltage()
 {
-    at_command="AT+CBC"
-    local voltage=$(at ${at_port} ${at_command} | grep "+CBC:" | sed 's/+CBC: //g' | sed 's/V//g' | sed 's/\r//g')
-    [ -n "$voltage" ] && {
-        add_plain_info_entry "voltage" "$voltage V" "Voltage" 
+    # +CBC: <bcs>,<bcl>,<voltage> -- A76XX returns the third field as plain
+    # digits (millivolts) or as "4.10V" (volts). Parse just that field and
+    # normalize the unit instead of echoing the whole response tail.
+    local val=$(at ${at_port} AT+CBC | grep "+CBC:" | awk -F',' '{gsub(/[^0-9.]/, "", $3); print $3}')
+    [ -n "$val" ] && {
+        case "$val" in
+            *.*) add_plain_info_entry "voltage" "${val}V" "Voltage" ;;
+            *)   add_plain_info_entry "voltage" "${val}mV" "Voltage" ;;
+        esac
     }
 }
 
