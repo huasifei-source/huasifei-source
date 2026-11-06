@@ -70,6 +70,11 @@
 		gpios = <&pio 11 GPIO_ACTIVE_LOW>;
 		default-state = "off";
 	};
+	led_gbe: led-5 {
+		label = "amber:gbe";
+		gpios = <&pio 8 GPIO_ACTIVE_LOW>;
+		default-state = "off";
+	};
 };
 };
 
