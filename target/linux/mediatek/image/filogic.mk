@@ -1879,7 +1879,10 @@ define Device/huasifei_wh3000r-nand
   IMAGE_SIZE := 231936k
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
   DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware \
-	kmod-usb3
+	kmod-usb3 f2fsck mkf2fs luci-light \
+	luci-app-samba4 kmod-usb-storage kmod-usb-storage-uas ntfs-3g block-mount \
+	luci-app-mwan3 kmod-nft-offload kmod-nf-flow kmod-nf-conntrack kmod-nft-nat \
+	atenl kmod-tun luci-proto-openvpn
 endef
 TARGET_DEVICES += huasifei_wh3000r-nand
 

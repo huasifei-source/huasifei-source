@@ -1,0 +1,57 @@
+From: huasifei <dev@huasifei.com>
+Date: Wed, 29 Oct 2026 10:00:00 +0800
+Subject: [PATCH] net: phy: realtek: GPIO hard reset on soft_reset timeout
+
+On WS1610 the RTL8221B occasionally hangs completely during boot
+(MDIO unresponsive, soft_reset returns -ETIMEDOUT). When the C45
+soft_reset times out, fall back to a hardware reset via the PHY
+reset GPIO using phy_device_reset() (standard PHY subsystem API,
+declared in linux/phy.h - no extra include needed).
+
+Verbose logging (all prefixed "wan dbg:"): entry print, OK print,
+timeout + GPIO reset + post-reset verification.
+
+Signed-off-by: huasifei <dev@huasifei.com>
+---
+--- a/drivers/net/phy/realtek/realtek_main.c
++++ b/drivers/net/phy/realtek/realtek_main.c
+--- a/drivers/net/phy/realtek/realtek_main.c
++++ b/drivers/net/phy/realtek/realtek_main.c
+@@ -1729,10 +1729,33 @@
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	return phy_read_mmd_poll_timeout(phydev, MDIO_MMD_PMAPMD,
+-					 MDIO_CTRL1, val,
+-					 !(val & MDIO_CTRL1_RESET),
+-					 5000, 100000, true);
++	phydev_dbg(phydev, "wan dbg: c45_soft_reset entry\n");
++	ret = phy_read_mmd_poll_timeout(phydev, MDIO_MMD_PMAPMD,
++					MDIO_CTRL1, val,
++					!(val & MDIO_CTRL1_RESET),
++					5000, 100000, true);
++	if (ret == 0) {
++		phydev_dbg(phydev, "wan dbg: c45_soft_reset OK\n");
++		return 0;
++	}
++	if (ret == -ETIMEDOUT && phydev->mdio.reset_gpio) {
++		/* PHY hung (SerDes wedge, power glitch, fw crash).
++		 * Fall back to GPIO hardware reset; the subsequent
++		 * config_init reconfigures the SerDes cleanly.
++		 */
++		phydev_err(phydev, "wan dbg: soft reset TIMEOUT, doing GPIO hard reset\n");
++		phy_device_reset(phydev, 1);
++		msleep(100);
++		phy_device_reset(phydev, 0);
++		msleep(100);
++		val = phy_read_mmd(phydev, MDIO_MMD_PMAPMD, MDIO_CTRL1);
++		phydev_err(phydev, "wan dbg: after GPIO reset CTRL1=0x%04x (%s)\n",
++			val, val < 0 ? "STILL DEAD" : "ALIVE");
++		return 0;
++	}
++	phydev_err(phydev, "wan dbg: c45_soft_reset ret=%d gpio=%s\n",
++		ret, phydev->mdio.reset_gpio ? "yes" : "no");
++	return ret;
+ }
+ 
+ static int rtl822xb_c45_read_status(struct phy_device *phydev)
