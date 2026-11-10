@@ -2,6 +2,18 @@
 
 [ "$ACTION" = "ifup" -o "$ACTION" = "ifdown" ] || exit 0
 
+# board guard: this script only serves the wh3000-pro-emmc/emmc LED scheme
+# (led-boot=red, led-running=blue). On other boards the DT aliases point to
+# different LEDs (e.g. wh3000r-nand: led-running=green:status) and this
+# would blink the wrong LEDs on every wan ifup.
+board=$(cat /tmp/sysinfo/board_name 2>/dev/null)
+case "$board" in
+    huasifei,wh3000-pro-emmc|huasifei,wh3000-emmc) ;;
+    *)
+        exit 0
+        ;;
+esac
+
 case "$INTERFACE" in
     lan|loopback|wg*|vpn*|tailscale*|zerotier*)
         exit 0
@@ -23,8 +35,8 @@ sleep 1
 if [ "$ACTION" = "ifup" ]; then
     led_timer "$RED_LED" 1000 1000
     led_timer "$BLUE_LED" 1000 1000
-    logger -t led-network "$INTERFACE up: red+blue slow blink"
+    logger -t led-network "$INTERFACE up: $RED_LED+$BLUE_LED slow blink"
 elif [ "$ACTION" = "ifdown" ]; then
     led_on "$BLUE_LED"
-    logger -t led-network "$INTERFACE down: blue solid"
+    logger -t led-network "$INTERFACE down: $BLUE_LED solid"
 fi
